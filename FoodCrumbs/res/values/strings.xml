@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Food Crumbs</string>
+    <string name="action_settings">Settings</string>
+    <string name="profile_pic_des">This is the profile picture</string>
+    <string name="directions_button_des">Map</string>
+    <string name="random_button_des">Random</string>
+    <string name="favorites_button_des">Favorites</string>
+    <string name="title_activity_map__view_">Map_View_Activity</string>
+    <string name="title_activity_favorites__view_">Favorites_View_Activity</string>
+    <string name="title_activity_random__generator_">Random_Generator_Activity</string>
+    <string name="str_btn_find">Find</string>
+    <string name="hnt_et_location">Enter Location</string>
+    <string name="hnt_et_location_2">Enter Destination</string>
+    <string name="action_search">Search Destinations</string>
+    <string name="action_direction">Directions</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="str_strt_location">Enter Start Location&#8230; </string>
+    <string name="str_end_location">Enter End Location&#8230;</string>
+    <string name="title_activity_directions_">Directions_Activity</string>
+	<string name="strt_loc_pin_drop">Start Location Pin Drop</string>
+	<string name="end_loc_pin_drop">End Location Pin Drop</string>
+	<string name="str_get_route">Get Route</string>
+	<string name="str_yelp_search_query">Enter Search Query&#8230;</string>
+	<string name="str_yelp_filter_time">Time</string>
+	<string name="str_yelp_filter_distance">Distance</string>
+
+
+</resources>
