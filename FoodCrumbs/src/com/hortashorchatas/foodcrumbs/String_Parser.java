@@ -4,6 +4,7 @@
 package com.hortashorchatas.foodcrumbs;
 
 import java.util.ArrayList;
+import org.json.*;
 
 /**
  * @author cs110xas
@@ -12,8 +13,12 @@ import java.util.ArrayList;
 
 public class String_Parser {
 	
-	String parseGoogleAPI(String parseString){
-		return "MY HANDS ARE TYPING";
+	ArrayList<LatLng> getDirections(String parseString){
+		ArrayList<LatLng> posList = new ArrayList<LatLng>();
+		
+		while()
+		
+		return posList;
 	}
 	
 	ArrayList<Restaurant> parseYelpAPI(String parseString){
