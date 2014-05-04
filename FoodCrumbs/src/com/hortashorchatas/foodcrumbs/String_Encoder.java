@@ -8,5 +8,13 @@ package com.hortashorchatas.foodcrumbs;
  *
  */
 public class String_Encoder {
+	
+	void GMapsStringEncode(String encodeString){
+		
+	}
+	
+	void YelpStringEncode(String encodeString){
+		
+	}
 
 }
