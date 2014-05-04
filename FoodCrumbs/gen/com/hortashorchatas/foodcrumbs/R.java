@@ -1273,16 +1273,17 @@ containing a value of this type.
         public static final int directions_icon=0x7f020071;
         public static final int directions_split=0x7f020072;
         public static final int favorites_icon=0x7f020073;
-        public static final int ic_action_directions=0x7f020074;
-        public static final int ic_action_pin=0x7f020075;
-        public static final int ic_action_search=0x7f020076;
-        public static final int ic_action_settings=0x7f020077;
-        public static final int ic_launcher=0x7f020078;
-        public static final int ic_plusone_medium_off_client=0x7f020079;
-        public static final int ic_plusone_small_off_client=0x7f02007a;
-        public static final int ic_plusone_standard_off_client=0x7f02007b;
-        public static final int ic_plusone_tall_off_client=0x7f02007c;
-        public static final int random_icon=0x7f02007d;
+        public static final int hortas_horchatas_white=0x7f020074;
+        public static final int ic_action_directions=0x7f020075;
+        public static final int ic_action_pin=0x7f020076;
+        public static final int ic_action_search=0x7f020077;
+        public static final int ic_action_settings=0x7f020078;
+        public static final int ic_launcher=0x7f020079;
+        public static final int ic_plusone_medium_off_client=0x7f02007a;
+        public static final int ic_plusone_small_off_client=0x7f02007b;
+        public static final int ic_plusone_standard_off_client=0x7f02007c;
+        public static final int ic_plusone_tall_off_client=0x7f02007d;
+        public static final int random_icon=0x7f02007e;
     }
     public static final class id {
         public static final int action_bar=0x7f06001f;
@@ -1428,20 +1429,22 @@ containing a value of this type.
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_directions_=0x7f030018;
         public static final int activity_favorites__view=0x7f030019;
-        public static final int activity_main__menu=0x7f03001a;
-        public static final int activity_map__view=0x7f03001b;
-        public static final int activity_random__generator=0x7f03001c;
-        public static final int fragment_favorites__view=0x7f03001d;
-        public static final int fragment_main__menu=0x7f03001e;
-        public static final int fragment_random__generator=0x7f03001f;
-        public static final int support_simple_spinner_dropdown_item=0x7f030020;
+        public static final int activity_launch__screen_=0x7f03001a;
+        public static final int activity_main__menu=0x7f03001b;
+        public static final int activity_map__view=0x7f03001c;
+        public static final int activity_random__generator=0x7f03001d;
+        public static final int fragment_favorites__view=0x7f03001e;
+        public static final int fragment_main__menu=0x7f03001f;
+        public static final int fragment_random__generator=0x7f030020;
+        public static final int support_simple_spinner_dropdown_item=0x7f030021;
     }
     public static final class menu {
         public static final int directions_=0x7f0c0000;
         public static final int favorites__view_=0x7f0c0001;
-        public static final int main__menu_=0x7f0c0002;
-        public static final int map__view_=0x7f0c0003;
-        public static final int random__generator_=0x7f0c0004;
+        public static final int launch__screen_=0x7f0c0002;
+        public static final int main__menu_=0x7f0c0003;
+        public static final int map__view_=0x7f0c0004;
+        public static final int random__generator_=0x7f0c0005;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
@@ -1596,6 +1599,7 @@ containing a value of this type.
         public static final int str_btn_find=0x7f070031;
         public static final int str_end_location=0x7f070038;
         public static final int str_get_route=0x7f07003c;
+        public static final int str_launch_img=0x7f070041;
         public static final int str_strt_location=0x7f070037;
         public static final int str_yelp_filter_distance=0x7f07003f;
         public static final int str_yelp_filter_time=0x7f07003e;
@@ -1603,6 +1607,7 @@ containing a value of this type.
         public static final int strt_loc_pin_drop=0x7f07003a;
         public static final int title_activity_directions_=0x7f070039;
         public static final int title_activity_favorites__view_=0x7f07002f;
+        public static final int title_activity_launch__screen_=0x7f070040;
         public static final int title_activity_map__view_=0x7f07002e;
         public static final int title_activity_random__generator_=0x7f070030;
     }

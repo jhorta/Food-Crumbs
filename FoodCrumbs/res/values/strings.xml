@@ -19,12 +19,13 @@
     <string name="str_strt_location">Enter Start Location&#8230; </string>
     <string name="str_end_location">Enter End Location&#8230;</string>
     <string name="title_activity_directions_">Directions_Activity</string>
-	<string name="strt_loc_pin_drop">Start Location Pin Drop</string>
-	<string name="end_loc_pin_drop">End Location Pin Drop</string>
-	<string name="str_get_route">Get Route</string>
-	<string name="str_yelp_search_query">Enter Search Query&#8230;</string>
-	<string name="str_yelp_filter_time">Time</string>
-	<string name="str_yelp_filter_distance">Distance</string>
-
+    <string name="strt_loc_pin_drop">Start Location Pin Drop</string>
+    <string name="end_loc_pin_drop">End Location Pin Drop</string>
+    <string name="str_get_route">Get Route</string>
+    <string name="str_yelp_search_query">Enter Search Query&#8230;</string>
+    <string name="str_yelp_filter_time">Time</string>
+    <string name="str_yelp_filter_distance">Distance</string>
+    <string name="title_activity_launch__screen_">Launch_Screen_Activity</string>
+    <string name="str_launch_img">Team Logo</string>
 
 </resources>
