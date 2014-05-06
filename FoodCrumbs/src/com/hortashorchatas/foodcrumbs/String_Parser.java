@@ -5,17 +5,20 @@ package com.hortashorchatas.foodcrumbs;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+//import org.json.simple.JSONArray;
+//import org.json.simple.JSONObject;
+//import org.json.simple.parser.JSONParser;
+//import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+//import org.json.JSONTokener;
 
 import com.google.android.gms.maps.model.LatLng;
 
 public class String_Parser {
 			
-	JSONParser parser = new JSONParser();
+//	JSONParser parser = new JSONParser();
 	
 	JSONObject server_response;
 	
@@ -25,8 +28,8 @@ public class String_Parser {
 	
 	public String_Parser(String json_response) {				
 		try {
-			server_response = (JSONObject) parser.parse(json_response);
-		} catch (ParseException e) {
+			server_response = new JSONObject(json_response);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -37,45 +40,42 @@ public class String_Parser {
 		ArrayList<LatLng> startLocations = new ArrayList<LatLng>();
 		ArrayList<LatLng> endLocations = new ArrayList<LatLng>();
 		
-		JSONObject routes = new JSONObject();
-		JSONArray routes_2 = new JSONArray();
-		JSONArray legs = new JSONArray();
-		JSONArray steps = new JSONArray();
+		JSONObject routes = null;
+		JSONArray routes_2 = null;
+		JSONArray legs = null;
+		JSONArray steps = null;
 		
 		if (server_response != null) {
-			routes = (JSONObject) server_response.get("routes");
-			routes_2 = (JSONArray) routes.get("routes");
+			routes = server_response.getJSONObject("routes");
+			routes_2 = routes.getJSONArray("routes");
 		}
-		
+				
 		for (int i = 0; i < routes_2.length(); ++i) {
-			if (routes_2.getString(i).equals("legs")) {
-				legs = (JSONArray) routes_2.get(i);
-				break;
-			}
+			JSONObject temp = routes_2.getJSONObject(i);
+			legs = temp.getJSONArray("legs");
 		}
 		
 		for (int i = 0; i < legs.length(); ++i) {
-			if (legs.getString(i).equals("steps")) {
-				steps = (JSONArray) legs.get(i);
-				break;
-			}
+			JSONObject temp = legs.getJSONObject(i);
+			steps = temp.getJSONArray("steps");
 		}
 		
 		for (int i = 0; i < steps.length(); ++i) {
-			if (steps.getString(i).equals("end_location")) {
-				JSONObject jobj = (JSONObject) steps.get(i);
-				double lat = jobj.getDouble("lat");
-				double lng = jobj.getDouble("lng");
-				LatLng loc = new LatLng(lat, lng);
-				endLocations.add(loc);
-			}
-			if (steps.getString(i).equals("start_location")) {
-				JSONObject jobj = (JSONObject) steps.get(i);
-				double lat = jobj.getDouble("lat");
-				double lng = jobj.getDouble("lng");
-				LatLng loc = new LatLng(lat, lng);
-				startLocations.add(loc);
-			}
+			JSONObject jobj = steps.getJSONObject(i);
+			
+			// gets end locations
+			JSONObject temp = jobj.getJSONObject("end_location");
+			double lat = temp.getDouble("lat");
+			double lng = temp.getDouble("lng");
+			LatLng end_loc = new LatLng(lat, lng);
+			endLocations.add(end_loc);
+			
+			// gets start locations
+			temp = jobj.getJSONObject("start_location");
+			lat = temp.getDouble("lat");
+			lng = temp.getDouble("lng");
+			LatLng strt_loc = new LatLng(lat, lng);
+			startLocations.add(strt_loc);
 		}
 		
 		for (int i = 0; i < startLocations.size(); ++i) {
@@ -88,8 +88,8 @@ public class String_Parser {
 	
 	public void setNewQueryReponse(String json_response) {
 		try {
-			server_response = (JSONObject) parser.parse(json_response);
-		} catch (ParseException e) {
+			server_response = new JSONObject(json_response);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

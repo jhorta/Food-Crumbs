@@ -53,7 +53,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private String provider;
 	private MapFragment mMapFragment;
 	private String_Parser json_reponse_parser;
-	private TextView hidden_field;
 	
 	/**
 	 * This method creates the view at the onset of the Activity. One thing to check here.
@@ -100,9 +99,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         zoomToCurrLocation();
         
         json_reponse_parser = new String_Parser();
-        
-        hidden_field = (TextView) findViewById(R.id.hidden_field);
-        hidden_field.setVisibility(View.GONE);
         
         findLocation("string");
 	}
@@ -161,17 +157,10 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		String json_response = hidden_field.toString();
-		
-		/*
-		if (json_response.equals("")) {
-			Log.i("There is an Error", "no response string");
-		}*/
-		
-		Log.i("json_response_string", json_response);
-		
-		json_reponse_parser.setNewQueryReponse(json_response);
+	}
+	
+	private void getLocationArray(String json_string) {
+		json_reponse_parser.setNewQueryReponse(json_string);
 		
 		try {
 			
@@ -187,7 +176,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			e.printStackTrace();
 		}
 		
-		Log.i("Hehehe", query);
+		Log.i("Hehehe", json_string);
 	}
 
 	/**
@@ -253,7 +242,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		
 		@Override
 		protected void onPostExecute(String result) {
-			hidden_field.setText(result);
+			getLocationArray(result);
 		}
 		
 	}
