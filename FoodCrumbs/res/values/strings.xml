@@ -27,5 +27,9 @@
     <string name="str_yelp_filter_distance">Distance</string>
     <string name="title_activity_launch__screen_">Launch_Screen_Activity</string>
     <string name="str_launch_img">Team Logo</string>
-
+    <string name="title_activity_restaurant_">Restaurant_Activity</string>
+    <string name="str_restaurant_img">Restaurant Image</string>
+    <string name="str_restaurant_name">Restaurant Name</string>
+	<string name="str_restaurant_fav">Restaurant Favorite</string>
+	<string name="str_restaurant_addr">Restaurant Address</string>
 </resources>

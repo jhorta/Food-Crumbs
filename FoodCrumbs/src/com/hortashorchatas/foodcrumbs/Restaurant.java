@@ -2,7 +2,11 @@ package com.hortashorchatas.foodcrumbs;
 
 import android.location.Location;
 
-public class Restaurant {
+public class Restaurant implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7686178610670313168L;
 	public String business_Id;		// Google Places API id
 	public String name;				// Google Places API name
 	public String address;			// Google Places API address

@@ -1,5 +1,16 @@
 package com.hortashorchatas.foodcrumbs;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+
+import org.json.JSONException;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -15,6 +26,7 @@ import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -28,6 +40,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -39,6 +52,8 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private LocationManager locationServices;
 	private String provider;
 	private MapFragment mMapFragment;
+	private String_Parser json_reponse_parser;
+	private TextView hidden_field;
 	
 	/**
 	 * This method creates the view at the onset of the Activity. One thing to check here.
@@ -81,8 +96,15 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         
 		gMaps.setMyLocationEnabled(true);
 		gMaps.getUiSettings().setMyLocationButtonEnabled(true);
-		
+				
         zoomToCurrLocation();
+        
+        json_reponse_parser = new String_Parser();
+        
+        hidden_field = (TextView) findViewById(R.id.hidden_field);
+        hidden_field.setVisibility(View.GONE);
+        
+        findLocation("string");
 	}
 
 	/**
@@ -132,9 +154,42 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 * @param query
 	 */
 	private void findLocation(String query) {
-		Log.v("Hehehe", query);
+		try {
+			URL url = new URL("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?origin=hahaha&destination=lols");
+			new getDirectionsFromServer().execute(url);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		String json_response = hidden_field.toString();
+		
+		/*
+		if (json_response.equals("")) {
+			Log.i("There is an Error", "no response string");
+		}*/
+		
+		Log.i("json_response_string", json_response);
+		
+		json_reponse_parser.setNewQueryReponse(json_response);
+		
+		try {
+			
+			ArrayList<DirLine> arr = json_reponse_parser.getDirections();
+			
+			for (int i = 0; i < arr.size(); ++i) {
+				DirLine temp = arr.get(i);
+				Log.i("LatLng Start Loc", "latitude: " + temp.getStartLocation().latitude + " longitude: " + temp.getStartLocation().longitude);
+				Log.i("LatLng End Loc", "latitude: " + temp.getEndLocation().latitude + "longitude: " + temp.getEndLocation().longitude);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Log.i("Hehehe", query);
 	}
-	
+
 	/**
 	 * This should zoom to your current location on the map. If it does not go to your 
 	 * current location on the map, something is wrong.
@@ -165,6 +220,42 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		// TODO Auto-generated method stub
 		findLocation(text);
 		return false;
+	}
+	
+	private class getDirectionsFromServer extends AsyncTask<URL, Void, String> {
+
+		@Override
+		protected String doInBackground(URL... urls) {
+			// TODO Auto-generated method stub
+			StringBuilder sb = new StringBuilder();
+			for (URL url: urls) {
+				try {
+					HttpURLConnection con = (HttpURLConnection) url.openConnection();
+					con.setRequestMethod("GET");
+					
+					BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+					String line = "";
+					while ((line = br.readLine()) != null) {
+						sb.append(line);
+					}
+					br.close();
+					
+					Log.i("Harhhhh", sb.toString());
+					return sb.toString();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					Log.i("There was an error", e1.toString());
+					e1.printStackTrace();
+				} 
+			}
+			return sb.toString();
+		}
+		
+		@Override
+		protected void onPostExecute(String result) {
+			hidden_field.setText(result);
+		}
+		
 	}
 
 }
