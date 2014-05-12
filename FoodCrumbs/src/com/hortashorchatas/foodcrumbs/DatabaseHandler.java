@@ -10,6 +10,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * 
@@ -99,8 +100,11 @@ Restaurant getFavorite(int id) {
 
 
 //Getting All Favorites
-public List<Restaurant> getAllFavorites() {
-    List<Restaurant> favoriteList = new ArrayList<Restaurant>();
+public ArrayList<Restaurant> getAllFavorites() {
+	
+	Log.i("hahahah", "get all favorites start");
+	
+	ArrayList<Restaurant> favoriteList = new ArrayList<Restaurant>();
     // Select All Query
     String selectQuery = "SELECT  * FROM " + TABLE_FAVORITES;
 
@@ -112,10 +116,21 @@ public List<Restaurant> getAllFavorites() {
         do {
         	Restaurant favorite = new Restaurant();
         	favorite.business_id = cursor.getString(0);
+        	
+        	Log.i("hahahah", favorite.business_id);
+        	
         	favorite.name = cursor.getString(1);
+        	
+        	Log.i("hahahah", favorite.name);
+        	
         	favorite.address = cursor.getString(2);
+        	
+        	Log.i("hahahah", favorite.address);
+        	
 //        	favorite.location = cursor.getString(2);
         	favorite.rating = cursor.getString(2);
+        	
+        	Log.i("hahahah", favorite.rating);
             // Adding favorite to list
         	favoriteList.add(favorite);
         } while (cursor.moveToNext());
