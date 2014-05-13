@@ -14,7 +14,10 @@ import org.json.JSONException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.MapFragment;
 
 import android.app.Activity;
@@ -23,6 +26,7 @@ import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -47,12 +51,18 @@ import android.provider.Settings;
 public class Map_View_Activity extends Activity implements SearchView.OnQueryTextListener {
 	private GoogleMap gMaps;
 	private MarkerOptions markerOptions;
+	private Marker startMarker;
+	private Marker endMarker;
 	private LatLng myCurrCoordinates;
 	private Location myLocation;
 	private LocationManager locationServices;
 	private String provider;
 	private MapFragment mMapFragment;
 	private String_Parser json_reponse_parser;
+	private ArrayList<DirLine> directions_array;
+	private ArrayList<Restaurant> restaurant_array;
+	private Polyline direction_line;
+	private PolylineOptions pOpt; 
 	
 	/**
 	 * This method creates the view at the onset of the Activity. One thing to check here.
@@ -99,7 +109,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         zoomToCurrLocation();
         
         json_reponse_parser = new String_Parser();
-        
+                
         findLocation("string");
 	}
 
@@ -151,7 +161,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 */
 	private void findLocation(String query) {
 		try {
-			URL url = new URL("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?origin=hahaha&destination=lols");
+			URL url = new URL("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?origin=hahaha&destination=lols&places_filter=restaurant&radius=1.0&time=NULL&distance=34");
 			new getDirectionsFromServer().execute(url);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -159,24 +169,56 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		}
 	}
 	
-	private void getLocationArray(String json_string) {
-		json_reponse_parser.setNewQueryReponse(json_string);
-		
+	private void getLocationArray() {
 		try {
 			
-			ArrayList<DirLine> arr = json_reponse_parser.getDirections();
-			
-			for (int i = 0; i < arr.size(); ++i) {
-				DirLine temp = arr.get(i);
-				Log.i("LatLng Start Loc", "latitude: " + temp.getStartLocation().latitude + " longitude: " + temp.getStartLocation().longitude);
-				Log.i("LatLng End Loc", "latitude: " + temp.getEndLocation().latitude + "longitude: " + temp.getEndLocation().longitude);
-			}
+			directions_array = json_reponse_parser.getDirections();		
+//			for (int i = 0; i < directions_array.size(); ++i) {
+//				DirLine temp = directions_array.get(i);
+//				Log.i("LatLng Start Loc", "latitude: " + temp.getStartLocation().latitude + " longitude: " + temp.getStartLocation().longitude);
+//				Log.i("LatLng End Loc", "latitude: " + temp.getEndLocation().latitude + "longitude: " + temp.getEndLocation().longitude);
+//			}
+			show_directions();
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		Log.i("Hehehe", json_string);
+		
+//		Log.i("Hehehe", json_string);
+	}
+	
+	private void show_directions() {
+        gMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(directions_array.get(0).getStartLocation().latitude,
+                		directions_array.get(0).getStartLocation().longitude), 16));
+        
+        startMarker = gMaps.addMarker(new MarkerOptions()
+        						.title("Start")
+        						.snippet("Start of your route")
+        						.position(directions_array.get(0).getStartLocation()));
+        
+        endMarker = gMaps.addMarker(new MarkerOptions()
+        						.title("End")
+        						.snippet("End of your route")
+        						.position(directions_array.get(directions_array.size()-1).getEndLocation()));
+        
+        pOpt = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        for (int i = 0 ; i < directions_array.size(); ++i) {
+        	LatLng start_point = directions_array.get(i).getStartLocation();
+        	pOpt.add(start_point);
+        	
+        	ArrayList<LatLng> inbtw_points = directions_array.get(i).getPoly_points();
+        	for (int j = 0; j < inbtw_points.size(); ++j) {
+        		LatLng inbtw_point = inbtw_points.get(j);
+        		pOpt.add(inbtw_point);
+        	}
+        	
+        	LatLng end_point = directions_array.get(i).getEndLocation();
+        	pOpt.add(end_point);
+        }
+        
+        direction_line = gMaps.addPolyline(pOpt);
 	}
 
 	/**
@@ -193,6 +235,33 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
             gMaps.animateCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16));
         }
+	}
+	
+	private void getRestaurants() {
+		try {
+			
+			restaurant_array = json_reponse_parser.getRestaurants();
+			for (int i = 0; i < restaurant_array.size(); ++i) {
+				Restaurant temp = restaurant_array.get(i);
+				Log.i("Restaurant name ", "restaurant: " + temp.name);
+			}
+			
+//			show_directions();
+			show_restaurants();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void show_restaurants() {
+		for (int i = 0; i < restaurant_array.size(); ++i) {
+			Restaurant restaurant = restaurant_array.get(i);
+	        gMaps.addMarker(new MarkerOptions()
+				.title(restaurant.name)
+				.snippet(restaurant.address)
+				.position(restaurant.location));
+		}
 	}
 
 	@Override
@@ -242,7 +311,9 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		
 		@Override
 		protected void onPostExecute(String result) {
-			getLocationArray(result);
+			json_reponse_parser.setNewQueryReponse(result);
+			getLocationArray();
+			getRestaurants();
 		}
 		
 	}
