@@ -36,7 +36,9 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String KEY_ID = "id";
     private static final String KEY_NAME = "name";
     private static final String KEY_ADDRESS = "address";
-    private static final String KEY_LOCATION = "location";
+//    private static final String KEY_LOCATION = "location";
+    private static final String KEY_LATITUDE = "latitude";
+    private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_RATING = "rating";
  
     public DatabaseHandler(Context context) {
@@ -48,7 +50,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
                 + KEY_ID + " INTEGER PRIMARY KEY," + KEY_NAME + " TEXT,"
-                + KEY_ADDRESS + " TEXT" + KEY_LOCATION + " TEXT" + KEY_RATING + " TEXT" + ")";
+                + KEY_ADDRESS + " TEXT," + KEY_RATING + " TEXT," + KEY_LATITUDE + " TEXT," + KEY_LONGITUDE + " TEXT" + ")";
         db.execSQL(CREATE_FAVORITES_TABLE);
     }
     
@@ -66,17 +68,20 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     // Adding new favorite
     
 public void addFavorite(Restaurant favorite) {
+
     SQLiteDatabase db = this.getWritableDatabase();
  
     ContentValues values = new ContentValues();
     values.put(KEY_ID, favorite.business_id); // Restaurant Name
     values.put(KEY_NAME, favorite.name); // Restaurant Name
     values.put(KEY_ADDRESS, favorite.address); // Restaurant Phone
-    //values.put(KEY_LOCATION, favorite.location); // Restaurant Phone
     values.put(KEY_RATING, favorite.rating); // Restaurant Phone
+    values.put(KEY_LATITUDE, String.valueOf(favorite.latitude));
+    values.put(KEY_LONGITUDE, String.valueOf(favorite.longitude));
 
     
     // Inserting Row
+    
     db.insert(TABLE_FAVORITES, null, values);
     db.close(); // Closing database connection
 }
@@ -87,7 +92,7 @@ Restaurant getFavorite(int id) {
     SQLiteDatabase db = this.getReadableDatabase();
 
     Cursor cursor = db.query(TABLE_FAVORITES, new String[] { KEY_ID,
-            KEY_NAME, KEY_ADDRESS, KEY_LOCATION, KEY_RATING }, KEY_ID + "=?",
+            KEY_NAME, KEY_ADDRESS, KEY_RATING, KEY_LATITUDE, KEY_LONGITUDE}, KEY_ID + "=?",
             new String[] { String.valueOf(id) }, null, null, null, null);
     if (cursor != null)
         cursor.moveToFirst();
@@ -102,8 +107,6 @@ Restaurant getFavorite(int id) {
 //Getting All Favorites
 public ArrayList<Restaurant> getAllFavorites() {
 	
-	Log.i("hahahah", "get all favorites start");
-	
 	ArrayList<Restaurant> favoriteList = new ArrayList<Restaurant>();
     // Select All Query
     String selectQuery = "SELECT  * FROM " + TABLE_FAVORITES;
@@ -117,20 +120,16 @@ public ArrayList<Restaurant> getAllFavorites() {
         	Restaurant favorite = new Restaurant();
         	favorite.business_id = cursor.getString(0);
         	
-        	Log.i("hahahah", favorite.business_id);
-        	
         	favorite.name = cursor.getString(1);
-        	
-        	Log.i("hahahah", favorite.name);
-        	
+
         	favorite.address = cursor.getString(2);
+
+        	favorite.rating = cursor.getString(3);
+
+        	favorite.latitude = Double.parseDouble(cursor.getString(4));
         	
-        	Log.i("hahahah", favorite.address);
-        	
-//        	favorite.location = cursor.getString(2);
-        	favorite.rating = cursor.getString(2);
-        	
-        	Log.i("hahahah", favorite.rating);
+        	favorite.longitude = Double.parseDouble(cursor.getString(5));
+
             // Adding favorite to list
         	favoriteList.add(favorite);
         } while (cursor.moveToNext());
@@ -151,7 +150,9 @@ public int updateFavorite(Restaurant favorite) {
     values.put(KEY_ADDRESS, favorite.address);
 //    values.put(KEY_LOCATION, favorite.location);
     values.put(KEY_RATING, favorite.rating);
-
+    values.put(KEY_LATITUDE, String.valueOf(favorite.latitude));
+    values.put(KEY_LONGITUDE, String.valueOf(favorite.longitude));
+    
     // updating row
     return db.update(TABLE_FAVORITES, values, KEY_ID + " = ?",
             new String[] { String.valueOf(favorite.business_id) });
