@@ -13,6 +13,7 @@ import org.json.JSONException;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -261,6 +262,26 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 				.title(restaurant.name)
 				.snippet(restaurant.address)
 				.position(restaurant.location));
+	        gMaps.setOnMarkerClickListener(new OnMarkerClickListener() {
+
+				@Override
+				public boolean onMarkerClick(Marker marker) {
+					// TODO Auto-generated method stub
+					LatLng location_of_restaurant = marker.getPosition();
+					Restaurant restaurant = null;
+					for (int i =0 ; i < restaurant_array.size(); ++i) {
+						Restaurant temp = restaurant_array.get(i);
+						if (temp.location.latitude == location_of_restaurant.latitude &&
+								temp.location.longitude == location_of_restaurant.longitude)
+						restaurant = restaurant_array.get(i);
+					}
+					Intent i = new Intent(getApplicationContext(), RestaurantActivity.class);
+					i.putExtra("Restaurant_Class", restaurant);
+					startActivity(i);
+					return false;
+				}
+	        	
+	        });
 		}
 	}
 
