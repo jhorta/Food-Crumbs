@@ -15,7 +15,9 @@ import org.json.JSONObject;
 //import org.json.JSONTokener;
 
 
+
 import android.location.Location;
+import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -58,19 +60,36 @@ public class String_Parser {
 			double latitude = location.getDouble("lat");
 			double longitude = location.getDouble("lng");
 			
+			Log.v("Latitude", String.valueOf(latitude));
+			Log.v("longitude", String.valueOf(longitude));
+			
 			LatLng rest_location = new LatLng(latitude, longitude);
 			
 			String rest_id = jobj.getString("id");
 			
 			String rest_name = jobj.getString("name");
 			
-			String rest_rating = "";//jobj.getString("rating");
+			String rest_reference = jobj.getString("reference");
 			
-			String rest_addr = jobj.getString("vicinity");
+			String rest_rating;
 			
-			Restaurant rest = new Restaurant(rest_id, rest_name, rest_addr, rest_location, rest_rating);
+			try {
+				 rest_rating = String.valueOf(jobj.getDouble("rating"));//jobj.getString("rating");/*"";*/
+			} catch (JSONException e) {
+				rest_rating = "No Rating";
+			}
 			
-			restaurants.add(rest);
+			String rest_addr;
+			
+			try {
+				rest_addr = jobj.getString("vicinity");
+			} catch (JSONException e) {
+				rest_addr = "No Address";
+			}
+			
+			Restaurant restaurant = new Restaurant(rest_reference, rest_id, rest_name, rest_addr, rest_location, rest_rating);
+			
+			restaurants.add(restaurant);
 		}
 		
 		return restaurants;

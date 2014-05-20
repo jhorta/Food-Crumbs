@@ -9,6 +9,7 @@ public class Restaurant implements java.io.Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 7686178610670313168L;
+	public String reference_id;
 	public String business_id;		// Google Places API id
 	public String name;				// Google Places API name
 	public String address;			// Google Places API address
@@ -17,7 +18,8 @@ public class Restaurant implements java.io.Serializable {
 	public double longitude;
 	public String rating;			// Google Places API rating
 
-	public Restaurant(String business_id, String name, String address, LatLng location, String rating) {
+	public Restaurant(String reference_id, String business_id, String name, String address, LatLng location, String rating) {
+		this.reference_id = reference_id;
 		this.business_id = business_id;
 		this.name = name;
 		this.address = address;
@@ -27,7 +29,8 @@ public class Restaurant implements java.io.Serializable {
 		this.longitude = location.longitude;
 	}
 	
-	public Restaurant(String business_id, String name) {
+	public Restaurant(String reference_id, String business_id, String name) {
+		this.reference_id = reference_id;
 		this.business_id = business_id;
 		this.name = name;
 		this.address = "";
@@ -36,6 +39,7 @@ public class Restaurant implements java.io.Serializable {
 	}
 	
 	public Restaurant() {
+		this.reference_id = "";
 		this.business_id = "";
 		this.name = "";
 		this.address = "";
