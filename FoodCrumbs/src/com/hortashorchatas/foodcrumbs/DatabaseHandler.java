@@ -31,6 +31,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
  
     // Favorites table name
     private static final String TABLE_FAVORITES = "favorites";
+    private static final String TABLE_INFO = "info";
  
     // Favorites Table Columns names
     private static final String KEY_ID = "id";
@@ -41,6 +42,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String KEY_LATITUDE = "latitude";
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_RATING = "rating";
+    
+    private static final String KEY_PROF_PIC_URL = "picture";
+    private static final String KEY_PROF_NAME = "name";
+    private static final String KEY_IS_FIRST_INSTALL = "first_install";
  
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -53,6 +58,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
                 + KEY_ID + " INTEGER PRIMARY KEY," + KEY_REFERENCE_ID + " TEXT," + KEY_NAME + " TEXT,"
                 + KEY_ADDRESS + " TEXT," + KEY_RATING + " TEXT," + KEY_LATITUDE + " TEXT," + KEY_LONGITUDE + " TEXT" + ")";
         db.execSQL(CREATE_FAVORITES_TABLE);
+        
+        String CREATE_INFO_TABLE = "CREATE TABLE " + TABLE_INFO + "(" + KEY_IS_FIRST_INSTALL + " INTEGER,"
+        		+ KEY_PROF_PIC_URL + " TEXT," + KEY_PROF_NAME + " TEXT" + ")";
+        db.execSQL(CREATE_INFO_TABLE);
     }
     
  // Upgrading database
@@ -60,10 +69,69 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
- 
+        
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_INFO);
         // Create tables again
         onCreate(db);
     }
+    
+    public void addProfileInfo(String prof_pic_url, String name, int value) {
+    	SQLiteDatabase db = this.getWritableDatabase();
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(KEY_IS_FIRST_INSTALL, value);
+    	values.put(KEY_PROF_PIC_URL, prof_pic_url);
+    	values.put(KEY_PROF_NAME, name);
+    	
+    	db.insert(TABLE_INFO, null, values);
+    	db.close();
+    }
+    
+    public int getIsFirstInstall() {
+    	int firstInstall = 0;
+    	
+    	SQLiteDatabase db = this.getReadableDatabase();
+    	
+	    Cursor cursor = db.rawQuery("SELECT "+KEY_IS_FIRST_INSTALL+" FROM "+TABLE_INFO+";", null);
+	    cursor.moveToFirst();
+	    firstInstall = cursor.getInt(0);
+	    
+    	return firstInstall;
+    }
+    
+    public String getProfilePic() {
+    	String prof_pic = "";
+    	
+    	SQLiteDatabase db = this.getReadableDatabase();
+    	
+	    Cursor cursor = db.rawQuery("SELECT "+KEY_PROF_PIC_URL+" FROM "+TABLE_INFO+";", null);
+	    cursor.moveToFirst();
+    	prof_pic = cursor.getString(0);
+	    
+    	return prof_pic;
+    }
+    
+    public String getProfileName() {
+    	String name = "";
+    	
+    	SQLiteDatabase db = this.getReadableDatabase();
+    	
+	    Cursor cursor = db.rawQuery("SELECT "+KEY_PROF_NAME+" FROM "+TABLE_INFO+";", null);
+	    cursor.moveToFirst();
+	    name = cursor.getString(0);
+	    
+    	return name;
+    }
+    
+	public void updateProfileInfo(String prof_pic_url, String name, int value)
+	{
+		ContentValues values = new ContentValues(3);
+		values.put(KEY_IS_FIRST_INSTALL, value);
+		values.put(KEY_PROF_PIC_URL, prof_pic_url);
+		values.put(KEY_PROF_NAME, name);
+		
+		getWritableDatabase().update(TABLE_INFO, values, null, null);
+	}
     
     //addFavorite()
     // Adding new favorite

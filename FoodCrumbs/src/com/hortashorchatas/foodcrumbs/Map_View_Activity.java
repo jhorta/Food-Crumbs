@@ -21,6 +21,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.MapFragment;
+import com.nineoldandroids.view.animation.AnimatorProxy;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener;
 
 import android.app.Activity;
 import android.app.ActionBar;
@@ -38,14 +41,22 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.os.Build;
 import android.provider.Settings;
@@ -62,10 +73,16 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private MapFragment mMapFragment;
 	private String_Parser json_reponse_parser;
 	private ArrayList<DirLine> directions_array;
+	private ArrayList<DirectionSteps> direction_steps_array;
 	private ArrayList<Restaurant> restaurant_array;
 	private Polyline direction_line;
 	private PolylineOptions pOpt; 
-	
+	private SlidingUpPanelLayout sPanel;
+	private TotalRouteInfo totalDirection;
+	private TextView directions_overview;
+	private ListView directions_list;
+    public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
+
 	/**
 	 * This method creates the view at the onset of the Activity. One thing to check here.
 	 * Check if the Alert Dialog gets built, and if all the correct settings are changed,
@@ -111,9 +128,104 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         zoomToCurrLocation();
         
         json_reponse_parser = new String_Parser();
+        
+        directions_overview = (TextView) findViewById(R.id.directions_overview_description);
                 
         findLocation("string");
+        
+        sPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        sPanel.setPanelHeight(0);
+        sPanel.setPanelSlideListener(new PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                //Log.i(TAG, "onPanelSlide, offset " + slideOffset);
+                setActionBarTranslation(sPanel.getCurrentParalaxOffset());
+            }
+
+            @Override
+            public void onPanelExpanded(View panel) {
+            	sPanel.setSlidingEnabled(false);
+            }
+
+            @Override
+            public void onPanelCollapsed(View panel) {
+            	
+            }
+
+            @Override
+            public void onPanelAnchored(View panel) {}
+        });
+        
+        directions_list = (ListView) findViewById(R.id.directions_list);
+                
+        directions_list.setOnScrollListener(new OnScrollListener() {
+        	private int mLastFirstVisibleItem = 0;
+        	private boolean mIsScrollingUp = false;
+        	
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            	final int currentFirstVisibleItem = directions_list.getFirstVisiblePosition();
+
+                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                    mIsScrollingUp = false;
+                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                    mIsScrollingUp = true;
+                }
+                
+                if (mIsScrollingUp) {
+                	if (currentFirstVisibleItem == 0) {
+                		sPanel.setSlidingEnabled(true);
+                	}
+                } else {
+                	sPanel.setSlidingEnabled(false);
+                }
+
+                mLastFirstVisibleItem = currentFirstVisibleItem;
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                int visibleItemCount, int totalItemCount) {}
+        });
+        
+        boolean actionBarHidden = savedInstanceState != null && savedInstanceState.getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
+        if (actionBarHidden) {
+            int actionBarHeight = getActionBarHeight();
+            setActionBarTranslation(-actionBarHeight);//will "hide" an ActionBar
+        }
 	}
+	
+    private int getActionBarHeight(){
+        int actionBarHeight = 0;
+        TypedValue tv = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+        }
+        return actionBarHeight;
+    }
+	
+	public void setActionBarTranslation(float y) {
+        // Figure out the actionbar height
+        int actionBarHeight = getActionBarHeight();
+        // A hack to add the translation to the action bar
+        ViewGroup content = ((ViewGroup) findViewById(android.R.id.content).getParent());
+        int children = content.getChildCount();
+        for (int i = 0; i < children; i++) {
+            View child = content.getChildAt(i);
+            if (child.getId() != android.R.id.content) {
+                if (y <= -actionBarHeight) {
+                    child.setVisibility(View.GONE);
+                } else {
+                    child.setVisibility(View.VISIBLE);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                        child.setTranslationY(y);
+                    } else {
+                        AnimatorProxy.wrap(child).setTranslationY(y);
+                    }
+                }
+            }
+        }
+    }
 
 	/**
 	 * This method creates the option menu at the top of the android. The search icon is found in the menu
@@ -174,7 +286,16 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private void getLocationArray() {
 		try {
 			
-			directions_array = json_reponse_parser.getDirections();		
+			directions_array = json_reponse_parser.getDirections();	
+			totalDirection = json_reponse_parser.getTotalDirections();
+			direction_steps_array = json_reponse_parser.getDirectionSteps();
+			
+			for (int i = 0; i < direction_steps_array.size(); ++i) {
+				DirectionSteps d_step = direction_steps_array.get(i);
+				Log.i("Step distance", d_step.getDistance());
+				Log.i("Step duration", d_step.getDuration());
+				Log.i("Step instruction", d_step.getInstruction());
+			}
 //			for (int i = 0; i < directions_array.size(); ++i) {
 //				DirLine temp = directions_array.get(i);
 //				Log.i("LatLng Start Loc", "latitude: " + temp.getStartLocation().latitude + " longitude: " + temp.getStartLocation().longitude);
@@ -196,13 +317,11 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
                 		directions_array.get(0).getStartLocation().longitude), 16));
         
         startMarker = gMaps.addMarker(new MarkerOptions()
-        						.title("Start")
-        						.snippet("Start of your route")
+        						.title(totalDirection.getStart_address())
         						.position(directions_array.get(0).getStartLocation()));
         
         endMarker = gMaps.addMarker(new MarkerOptions()
-        						.title("End")
-        						.snippet("End of your route")
+        						.title(totalDirection.getEnd_address())
         						.position(directions_array.get(directions_array.size()-1).getEndLocation()));
         
         pOpt = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
@@ -221,6 +340,30 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         }
         
         direction_line = gMaps.addPolyline(pOpt);
+        
+        sPanel.setPanelHeight(136);
+        
+        directions_overview.setText(totalDirection.getDuration() + "(" + totalDirection.getDistance() + ")");
+        
+        String[] instructions = new String[direction_steps_array.size()];
+        Integer[] imageIds = new Integer[direction_steps_array.size()];
+        for (int i = 0; i < direction_steps_array.size(); ++i) {
+        	String instruction = direction_steps_array.get(i).getInstruction();
+        	instruction = instruction.replace("</b>", "");
+        	String formated_instruction = instruction.replace("<b>", "");
+        	if (instruction.contains("right")) {
+        		imageIds[i] = R.drawable.ic_action_right_turn;
+        	} else if (instruction.contains("left")) {
+        		imageIds[i] = R.drawable.ic_action_left_turn;
+        	} else {
+        		imageIds[i] = R.drawable.ic_action_straight_on;
+        	}
+        	instructions[i] = formated_instruction + " " + direction_steps_array.get(i).getDuration() + "(" + direction_steps_array.get(i).getDistance() + ")";
+        }
+        
+        CustomListDirectionSteps directions_steps_adapter = new CustomListDirectionSteps(this, instructions, imageIds);
+        
+        directions_list.setAdapter(directions_steps_adapter);
 	}
 
 	/**
@@ -277,6 +420,10 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 							restaurant = temp;
 							Log.v("hahahha", restaurant.name);
 						}
+					}
+					
+					if (restaurant == null) {
+						return;
 					}
 					
 					Intent i = new Intent(getApplicationContext(), RestaurantActivity.class);
@@ -340,6 +487,35 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			getRestaurants();
 		}
 		
+	}
+	
+	class CustomListDirectionSteps extends ArrayAdapter<String> {
+		
+		Activity context;
+		String[] instructions;
+		Integer[] imageIds;
+		
+		public CustomListDirectionSteps(Activity context, String[] instructions, Integer[] imageIds) {
+			super(context, R.layout.app_custom_list, instructions);
+			
+			this.context = context;
+			this.instructions = instructions;
+			this.imageIds = imageIds;
+		}
+		
+		@Override
+		public View getView(int position, View view, ViewGroup parent) {
+			LayoutInflater inflater = context.getLayoutInflater();
+			View rowView= inflater.inflate(R.layout.app_custom_list, null, true);
+			
+			TextView txtTitle = (TextView) rowView.findViewById(R.id.dir_instruction);
+			ImageView imageView = (ImageView) rowView.findViewById(R.id.dir_icon);
+			
+			txtTitle.setText(instructions[position]);
+			imageView.setImageResource(imageIds[position]);
+			
+			return rowView;
+		}
 	}
 
 }

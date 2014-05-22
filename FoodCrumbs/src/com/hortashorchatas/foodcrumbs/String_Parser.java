@@ -16,6 +16,7 @@ import org.json.JSONObject;
 
 
 
+
 import android.location.Location;
 import android.util.Log;
 
@@ -95,6 +96,95 @@ public class String_Parser {
 		return restaurants;
 	}
 	
+	
+	@SuppressWarnings("unused")
+	public TotalRouteInfo getTotalDirections() throws JSONException {
+		JSONObject routes = null;
+		JSONArray routes_2 = null;
+		JSONArray legs = null;
+		
+		if (server_response != null) {
+			routes = server_response.getJSONObject("routes");
+			routes_2 = routes.getJSONArray("routes");
+		}
+				
+		for (int i = 0; i < routes_2.length(); ++i) {
+			JSONObject temp = routes_2.getJSONObject(i);
+			legs = temp.getJSONArray("legs");
+		}
+		
+		for (int i = 0; i < 1; ++i) {
+			JSONObject jobj = legs.getJSONObject(i);
+			
+			JSONObject temp = jobj.getJSONObject("distance");
+			String distance = temp.getString("text");
+			
+			temp = jobj.getJSONObject("duration");
+			String duration = temp.getString("text");
+			
+			String start_location = jobj.getString("start_address");
+			String end_location = jobj.getString("end_address");
+			
+			TotalRouteInfo totalDirection = new TotalRouteInfo(distance, duration, start_location, end_location);
+			
+			return totalDirection;
+		}
+		
+		return null;
+	}
+	
+	public ArrayList<DirectionSteps> getDirectionSteps() throws JSONException {
+		ArrayList<DirectionSteps> steps_arr = new ArrayList<DirectionSteps>();
+		
+		JSONObject routes = null;
+		JSONArray routes_2 = null;
+		JSONArray legs = null;
+		JSONArray steps = null;
+		
+		if (server_response != null) {
+			routes = server_response.getJSONObject("routes");
+			routes_2 = routes.getJSONArray("routes");
+		}
+				
+		for (int i = 0; i < routes_2.length(); ++i) {
+			JSONObject temp = routes_2.getJSONObject(i);
+			legs = temp.getJSONArray("legs");
+		}
+		
+		for (int i = 0; i < 1; ++i) {
+			JSONObject temp = legs.getJSONObject(i);
+			steps = temp.getJSONArray("steps");
+		}
+		
+		for (int i = 0; i < steps.length(); ++i) {
+			JSONObject jobj = steps.getJSONObject(i);
+						
+			// gets end locations
+			JSONObject temp = jobj.getJSONObject("end_location");
+			double lat = temp.getDouble("lat");
+			double lng = temp.getDouble("lng");
+			LatLng end_loc = new LatLng(lat, lng);
+			
+			// gets start locations
+			temp = jobj.getJSONObject("start_location");
+			lat = temp.getDouble("lat");
+			lng = temp.getDouble("lng");
+			LatLng strt_loc = new LatLng(lat, lng);
+			
+			temp = jobj.getJSONObject("distance");
+			String distance = temp.getString("text");
+			
+			temp = jobj.getJSONObject("duration");
+			String duration = temp.getString("text");
+			
+			String instruction = jobj.getString("html_instructions");
+			
+			DirectionSteps d_step = new DirectionSteps(distance, duration, instruction, strt_loc, end_loc);
+			steps_arr.add(d_step);
+		}
+		return steps_arr;
+	}
+	
 	public ArrayList<DirLine> getDirections() throws JSONException{
 		ArrayList<DirLine> dirList = new ArrayList<DirLine>();
 		
@@ -113,7 +203,7 @@ public class String_Parser {
 			legs = temp.getJSONArray("legs");
 		}
 		
-		for (int i = 0; i < legs.length(); ++i) {
+		for (int i = 0; i < 1; ++i) {
 			JSONObject temp = legs.getJSONObject(i);
 			steps = temp.getJSONArray("steps");
 		}
