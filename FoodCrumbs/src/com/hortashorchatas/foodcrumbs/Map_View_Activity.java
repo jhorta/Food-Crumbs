@@ -35,6 +35,7 @@ import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -246,7 +247,9 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 
 		return true;
 	}
-
+	
+	private final int COORDINATES_REQUESTED = 4000;
+	
 	/**
 	 * This method controls the selection of the items on the menu bar at the very top of the android. 
 	 * Check to see if when the directions icon is clicked it starts the Directions Activity. If it 
@@ -263,10 +266,18 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		}
 		if (id == R.id.action_directions) {
 			Intent i = new Intent(getApplicationContext(), Directions_Activity.class);
-			startActivity(i);
+			startActivityForResult(i, COORDINATES_REQUESTED);
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+        	if (requestCode == COORDINATES_REQUESTED) {
+        		
+        	}
+        }
+    }
 	
 	/**
 	 * Currently, find location should log the pair "Hehehe" with the query that you put into

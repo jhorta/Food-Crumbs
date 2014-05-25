@@ -1,4 +1,4 @@
-package com.hortashorchatas.foodcrumbs;
+	package com.hortashorchatas.foodcrumbs;
 
 import android.app.Activity;
 import android.app.ActionBar;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -28,6 +29,8 @@ public class Directions_Activity extends Activity implements OnItemSelectedListe
 	
 	TextView time_distance_filter_label;
 	EditText time_distance_filter_text;
+	
+	Button submit_button;
 	
 	boolean isFilterTime;
 	
@@ -67,6 +70,15 @@ public class Directions_Activity extends Activity implements OnItemSelectedListe
 		time_distance_filter_label.setText("Hours");
 		
 		time_distance_filter_text = (EditText) findViewById(R.id.edit_text_hours_or_miles);
+		
+		submit_button = (Button) findViewById(R.id.submit_button);
+		submit_button.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				
+			}
+		});
 	}
 	
 	/**

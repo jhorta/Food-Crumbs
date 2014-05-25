@@ -31,6 +31,7 @@ public class Main_Menu_Activity extends ActionBarActivity {
     private static final int SELECT_PICTURE = 1;
     DatabaseHandler db;
     String img_resource;
+    Button select_image;
     
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +53,14 @@ public class Main_Menu_Activity extends ActionBarActivity {
 			hideViews();
 			final Dialog dialog = new Dialog(this);
 			dialog.setContentView(R.layout.initial_dialog_layout);
-			dialog.setTitle("Title...");
+			dialog.setTitle("Please Choose a Picture and a Username");
  
 			// set the custom dialog components - text, image and button
 			final EditText text = (EditText) dialog.findViewById(R.id.name_text);
  
-			Button imageButton = (Button) dialog.findViewById(R.id.select_image);
+			select_image = (Button) dialog.findViewById(R.id.select_image);
 			// if button is clicked, close the custom dialog
-			imageButton.setOnClickListener(new OnClickListener() {
+			select_image.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					Intent intent = new Intent();
@@ -92,7 +93,8 @@ public class Main_Menu_Activity extends ActionBarActivity {
 	private void createPage(String img_resource, String name) {
 		final ImageView prof_pic = (ImageView) findViewById(R.id.profile_pic);
 		prof_pic.setVisibility(View.VISIBLE);
-		prof_pic.getLayoutParams().height = 200;
+		prof_pic.getLayoutParams().height = 160;
+		prof_pic.getLayoutParams().width = 160;
 		if (img_resource != "") {
 			prof_pic.setImageURI(Uri.parse(img_resource));
 		} else {
@@ -141,6 +143,8 @@ public class Main_Menu_Activity extends ActionBarActivity {
             if (requestCode == SELECT_PICTURE) {
                 Uri selectedImageUri = data.getData();
                 img_resource = getPath(selectedImageUri);
+                select_image.setEnabled(false);
+                select_image.setText("Image selected.");
             }
         }
     }
