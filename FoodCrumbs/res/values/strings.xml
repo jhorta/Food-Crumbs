@@ -30,6 +30,17 @@
     <string name="title_activity_restaurant_">Restaurant_Activity</string>
     <string name="str_restaurant_img">Restaurant Image</string>
     <string name="str_restaurant_name">Restaurant Name</string>
-	<string name="str_restaurant_fav">Restaurant Favorite</string>
-	<string name="str_restaurant_addr">Restaurant Address</string>
+    <string name="str_restaurant_fav">Restaurant Favorite</string>
+    <string name="str_restaurant_addr">Restaurant Address</string>
+    <string name="str_custom_image">Direction Image</string>
+    <string name="str_welcome_to_random_generator">Welcome to Random Generator!</string>
+    <string name="str_ready">Are you ready?</string>
+    <string name="str_spin">Spin!</string>
+    <string name="title_activity_initial__install_">Initial_Install_Activity</string>
+    <string name="str_choose_image">Choose image&#8230;</string>
+    <string name="str_enter_name">Enter Your Name:</string>
+    <string name="str_enter_name_hint">Your name&#8230;</string>
+    <string name="str_done">Done</string>
+    <string name="str_find">Find</string>
+    <string name="str_my_current_location">Current Location</string>
 </resources>

@@ -33,7 +33,8 @@
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/start_location_pin_drop"
         android:layout_alignParentLeft="true"
-        android:inputType="text" />
+        android:inputType="text" 
+        android:text = "@string/str_my_current_location"/>
 
     <EditText
         android:id="@+id/end_location"
@@ -46,41 +47,45 @@
         android:inputType="text" >
     </EditText>
 
+    <!-- This is the start of the filters --> 
     <TextView
-        android:id="@+id/filter_text"
+    	android:id="@+id/search_radius_label"
+    	android:layout_centerVertical="true"
+    	android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentLeft="true"
+    	android:layout_marginTop="10dp"
+    	android:text=""
+    	/>
+    <Spinner
+        android:id="@+id/yelp_distance_filter_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/end_location_pin_drop"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="" />
-    
+        android:layout_below="@+id/search_radius_label" 
+        android:layout_alignParentLeft="true" />
+
     <EditText 
         android:id="@+id/yelp_search_query_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/end_location_pin_drop"
-        android:layout_below="@+id/filter_text"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/search_radius_label"
         android:hint="@string/str_yelp_search_query"
         android:inputType="text" />    
         
     <TextView
-    	android:id="@+id/search_radius_label"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:layout_alignParentLeft="true"
-    	android:layout_below="@+id/yelp_search_query_filter" 
-    	android:layout_marginTop="10dp"
-    	android:text=""
-    	/>
-
-    <Spinner
-        android:id="@+id/yelp_distance_filter_spinner"
+        android:id="@+id/filter_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/yelp_search_query_filter"
-        android:layout_toRightOf="@+id/search_radius_label" />
+        android:layout_alignParentLeft="true"
+        android:layout_above="@+id/yelp_search_query_filter"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="" />
+
+        
+
+    
     <RadioGroup 
         android:id="@+id/radio_group"
         android:layout_width="wrap_content"
@@ -104,6 +109,7 @@
         	android:onClick="onRadioButtonClicked"
         	/>
 	</RadioGroup>
+	
     <TextView
         android:id="@+id/label_text_hours_or_miles"
         android:layout_width="wrap_content"
@@ -121,5 +127,13 @@
         android:layout_toLeftOf="@+id/label_text_hours_or_miles"
         android:inputType="number"
         />
+
+    <Button
+        android:id="@+id/submit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/edit_text_hours_or_miles"
+        android:text="@string/str_find" />
 
 </RelativeLayout>
