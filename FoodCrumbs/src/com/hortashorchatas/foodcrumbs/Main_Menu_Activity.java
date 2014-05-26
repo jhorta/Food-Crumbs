@@ -107,22 +107,16 @@ public class Main_Menu_Activity extends ActionBarActivity {
 		name_text.setText("Hello! " + name);
 		
 		// Should test --> check if correct size.
-		final ImageButton favorites_button = (ImageButton) findViewById(R.id.favorites_button);
+		final Button favorites_button = (Button) findViewById(R.id.favorites_button);
 		favorites_button.setVisibility(View.VISIBLE);
-		favorites_button.getLayoutParams().height = 200;
-		favorites_button.getLayoutParams().width = 200;
 		
 		// Should test --> check if correct size.
-		final ImageButton directions_button = (ImageButton) findViewById(R.id.directions_button);
+		final Button directions_button = (Button) findViewById(R.id.directions_button);
 		directions_button.setVisibility(View.VISIBLE);
-		directions_button.getLayoutParams().height = 200;
-		directions_button.getLayoutParams().width = 200;
 		
 		// Should test --> check if correct size.
-		final ImageButton random_button = (ImageButton) findViewById(R.id.random_button);
+		final Button random_button = (Button) findViewById(R.id.random_button);
 		random_button.setVisibility(View.VISIBLE);
-		random_button.getLayoutParams().height = 200;
-		random_button.getLayoutParams().width = 200;	
 	}
 	
 	private void hideViews() {
