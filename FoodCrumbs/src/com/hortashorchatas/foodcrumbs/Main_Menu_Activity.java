@@ -124,11 +124,11 @@ public class Main_Menu_Activity extends ActionBarActivity {
 		prof_pic.setVisibility(View.GONE);
 		final TextView name_text = (TextView) findViewById(R.id.name_text);
 		name_text.setVisibility(View.GONE);
-		final ImageButton favorites_button = (ImageButton) findViewById(R.id.favorites_button);
+		final Button favorites_button = (Button) findViewById(R.id.favorites_button);
 		favorites_button.setVisibility(View.GONE);
-		final ImageButton directions_button = (ImageButton) findViewById(R.id.directions_button);
+		final Button directions_button = (Button) findViewById(R.id.directions_button);
 		directions_button.setVisibility(View.GONE);
-		final ImageButton random_button = (ImageButton) findViewById(R.id.random_button);
+		final Button random_button = (Button) findViewById(R.id.random_button);
 		random_button.setVisibility(View.GONE);
 	}
 
