@@ -24,11 +24,13 @@
         android:id="@+id/name_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true" 
         android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/profile_pic"
+        android:layout_marginLeft="50dp"
         android:fontFamily="sans-serif"
-        android:textSize="24sp"
+        android:minLines="2"
         android:text=""
+        android:textSize="24sp"
         android:color="#FFFFFF" />
 
 	<Button

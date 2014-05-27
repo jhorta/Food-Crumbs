@@ -2,97 +2,115 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/restaurant_page"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".RestaurantActivity" >
-
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
+  
     <TextView
         android:id="@+id/restaurant_name"
-        android:layout_width="200dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:text="Name"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/str_restaurant_name_placeholder"
+		android:textSize="36sp"/>
 
+    
     <ImageView
-        android:id="@+id/restaurant_image"
+        android:id="@+id/restaurant_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/rating"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/google_places_link"
-        android:src="@drawable/abc_ab_bottom_solid_light_holo" />
-
-    <TextView
-        android:id="@+id/address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/restaurant_name"
         android:layout_below="@+id/restaurant_name"
-        android:text="Address"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:contentDescription="@string/str_restaurant_img"
+        android:src="@drawable/restaurant_img" />
     
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-</TextView>
-
-    <TextView
-        android:id="@+id/hours"
+        android:id="@+id/restaurant_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/address"
-        android:layout_below="@+id/address"
-        android:text="Hours" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/restaurant_name"
+        android:layout_marginTop="5dp"
+        android:maxWidth="150dp"
+        android:text="@string/str_restaruant_address_placeholder"
+        android:textAppearance="?android:attr/textAppearanceMedium"  />
 
-    <TextView
-        android:id="@+id/phone"
+    <Spinner
+        android:id="@+id/restaurant_hours"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/hours"
-        android:layout_below="@+id/hours"
-        android:text="Phone #" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/restaurant_address"
+        android:layout_marginTop="5dp" />
 
-    <TextView
-        android:id="@+id/website"
+    <ImageView
+        android:id="@+id/restaurant_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/phone"
-        android:layout_below="@+id/phone"
-        android:text="Website" />
-
-    <TextView
-        android:id="@+id/rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/phone"
-        android:layout_alignBottom="@+id/phone"
         android:layout_alignParentLeft="true"
-        android:text="Rating" />
+        android:layout_below="@+id/restaurant_picture"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:contentDescription="@string/str_restaurant_img"
+        android:src="@drawable/ic_not_favorite" />
 
-    <ImageButton
-        android:id="@+id/google_places_link"
+    <TextView
+        android:id="@+id/restaurant_phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/website"
-        android:layout_alignLeft="@+id/rating"
-        android:layout_alignTop="@+id/website"
-        android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/restaurant_hours"
+        android:layout_marginTop="5dp"
+        android:clickable="true"
+        android:textAppearance="?android:attr/textAppearanceMedium"        
+        android:text="@string/str_restaurant_phone_number_placeholder" />
 
-    <ImageButton
-        android:id="@+id/favorites"
+    <TextView
+        android:id="@+id/restaurant_rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/restaurant_name"
-        android:layout_alignTop="@+id/restaurant_name"
-        android:src="@drawable/abc_ab_bottom_solid_dark_holo" />
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/restaurant_favorite"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/str_restaurant_rating" />
+
+    <TextView
+        android:id="@+id/restaurant_website"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/restaurant_phone_number"
+        android:layout_marginTop="5dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"  
+        android:text="@string/str_restaurant_website_placeholder" />
+
+    <Button
+        android:id="@+id/dishes_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/restaurant_rating"
+        android:text="@string/str_restaurant_dishes_placeholder" />
+
+    <TextView
+        android:id="@+id/best_review"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/str_restaurant_best_review_placeholder" />
+
+    <TextView
+        android:id="@+id/worst_review"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="@string/str_restaurant_best_review_placeholder" />
 
 </RelativeLayout>

@@ -174,9 +174,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
                 }
                 
                 if (mIsScrollingUp) {
-                	if (currentFirstVisibleItem == 0) {
-                		sPanel.setSlidingEnabled(true);
-                	}
+                	sPanel.setSlidingEnabled(true);
                 } else {
                 	sPanel.setSlidingEnabled(false);
                 }
@@ -476,6 +474,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 					BufferedReader br = new BufferedReader(new InputStreamReader(con.getInputStream()));
 					String line = "";
 					while ((line = br.readLine()) != null) {
+						
 						sb.append(line);
 					}
 					br.close();

@@ -38,6 +38,7 @@
 			        android:layout_height="match_parent"
 			        android:gravity="left|top"
 			        android:text=""
+			        android:clickable="true"
 			        android:textSize="24sp" />
 			</LinearLayout>
 			<ListView

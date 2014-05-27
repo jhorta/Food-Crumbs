@@ -43,4 +43,11 @@
     <string name="str_done">Done</string>
     <string name="str_find">Find</string>
     <string name="str_my_current_location">Current Location</string>
+    <string name="str_restaurant_name_placeholder">Restaurant Name</string>
+    <string name="str_restaruant_address_placeholder">Restaurant Address</string>
+    <string name="str_restaurant_phone_number_placeholder">Restaurant Phone Number</string>
+    <string name="str_restaurant_rating">0.0/5.0</string>
+    <string name="str_restaurant_website_placeholder">Restaurant Website</string>
+    <string name="str_restaurant_dishes_placeholder">Dishes</string>
+    <string name="str_restaurant_best_review_placeholder">Best Review</string>
 </resources>
