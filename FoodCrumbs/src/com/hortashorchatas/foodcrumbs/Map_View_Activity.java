@@ -15,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -70,7 +71,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private LatLng myCurrCoordinates;
 	private Location myLocation;
 	private LocationManager locationServices;
-	private String provider;
 	private MapFragment mMapFragment;
 	private String_Parser json_reponse_parser;
 	private ArrayList<DirLine> directions_array;
@@ -82,6 +82,14 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private TotalRouteInfo totalDirection;
 	private TextView directions_overview;
 	private ListView directions_list;
+	private SearchView searchLocation;
+	
+	private String provider;
+	private String search_type;
+	private double radius;
+	private double time_in;
+	private double distance_in;
+	
     public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
 
 	/**
@@ -119,6 +127,11 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			enableLocationServices.show();
 		}
 		
+		search_type = "restaurant";
+		radius = 0.5;
+		time_in = 0;
+		distance_in = 0;
+		
 		mMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
 				
         gMaps = mMapFragment.getMap();
@@ -132,7 +145,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         
         directions_overview = (TextView) findViewById(R.id.directions_overview_description);
                 
-        findLocation("string");
+//        findLocation("Palo Alto", "Los Angeles");
         
         sPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         sPanel.setPanelHeight(0);
@@ -238,15 +251,17 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		getMenuInflater().inflate(R.menu.map__view_, menu);
 		
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		final SearchView searchLocation = (SearchView) MenuItemCompat.getActionView(searchItem);
-		searchLocation.setQueryHint("Enter a Location");
+		searchLocation = (SearchView) MenuItemCompat.getActionView(searchItem);
+		searchLocation.setQueryHint("Current Location");
+		searchLocation.setSubmitButtonEnabled(true);
 		searchLocation.setIconifiedByDefault(true);
 		searchLocation.setOnQueryTextListener(this);
-
+		
 		return true;
 	}
 	
 	private final int COORDINATES_REQUESTED = 4000;
+	private final int FILTERS_REQUESTED = 4001;
 	
 	/**
 	 * This method controls the selection of the items on the menu bar at the very top of the android. 
@@ -260,8 +275,9 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_settings) {
-			return true;
-		}
+			Intent i = new Intent(getApplicationContext(), Filters_Activity.class);
+			startActivityForResult(i, FILTERS_REQUESTED);
+		} 
 		if (id == R.id.action_directions) {
 			Intent i = new Intent(getApplicationContext(), Directions_Activity.class);
 			startActivityForResult(i, COORDINATES_REQUESTED);
@@ -272,7 +288,23 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
         	if (requestCode == COORDINATES_REQUESTED) {
+        		String start_location = data.getExtras().getString("Start Location");
+        		String end_location = data.getExtras().getString("End Location");
+        		if (!data.getExtras().getString("Search Query").equals("")) {
+            		search_type = data.getExtras().getString("Search Query");
+        		}
+        		radius = Double.parseDouble(data.getExtras().getString("Radius"));
+        		time_in = Double.parseDouble(data.getExtras().getString("Time"));
+        		distance_in = Double.parseDouble(data.getExtras().getString("Distance"));
         		
+        		findLocation(start_location, end_location);
+        	} else if (requestCode == FILTERS_REQUESTED) {
+        		if (!data.getExtras().getString("Search Query").equals("")) {
+            		search_type = data.getExtras().getString("Search Query");
+        		}
+        		radius = Double.parseDouble(data.getExtras().getString("Radius"));
+        		time_in = Double.parseDouble(data.getExtras().getString("Time"));
+        		distance_in = Double.parseDouble(data.getExtras().getString("Distance"));
         	}
         }
     }
@@ -282,9 +314,46 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 * the search bar. Eventually it will do more things...
 	 * @param query
 	 */
-	private void findLocation(String query) {
+	private void findLocation(String startLocation, String endLocation) {
+		String origin = "";
+		String destination = "";
+		String time_filter = "";
+		String distance_filter = "";
+		
+		startLocation = startLocation.replace(" ", "%20");
+		
+		if (startLocation.equals("Current Location")) {
+			origin = "origin="+String.valueOf(myLocation.getLatitude())+"&origin="+String.valueOf(myLocation.getLongitude());
+		} else {
+			origin = "origin="+startLocation;
+		}
+		
+		if (endLocation == null) {
+			destination = "destination=NULL";
+		} else if (endLocation.startsWith("LatLngForm:")) {
+			String end_location = endLocation.replace("LatLngForm:", "");
+			String delims = "[,]";
+			String[] points = end_location.split(delims);
+			destination = "destination="+points[0]+"&destination="+points[1];
+		} else {
+			endLocation = endLocation.replace(" ", "%20");
+			destination = "destination="+endLocation;
+		}
+		
+		if (time_in == 0) {
+			time_filter = "NULL";
+		} else {
+			time_filter = String.valueOf(time_in);
+		}
+		
+		if (distance_in == 0) {
+			distance_filter = "NULL";
+		} else {
+			distance_filter = String.valueOf(distance_in);
+		}
+		
 		try {
-			URL url = new URL("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?origin=hahaha&destination=lols&places_filter=restaurant&radius=1.0&time=NULL&distance=34");
+			URL url = new URL(new String("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?"+origin+"&"+destination+"&places_filter="+search_type+"&radius="+String.valueOf(radius)+"&time="+time_filter+"&distance="+distance_filter));
 			new getDirectionsFromServer().execute(url);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -380,15 +449,18 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 * current location on the map, something is wrong.
 	 */
 	private void zoomToCurrLocation() {		
-		Criteria criteria = new Criteria();
-		provider = locationServices.getBestProvider(criteria, false);
+		LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+		myLocation = locationServices.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 		
-		myLocation = locationServices.getLastKnownLocation(provider);
-        if (myLocation != null)
-        {
+		if (myLocation == null) {
+			Criteria criteria = new Criteria();
+	        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+	        String provider = lm.getBestProvider(criteria, true);
+	        myLocation = lm.getLastKnownLocation(provider);
+		}		
+
             gMaps.animateCamera(CameraUpdateFactory.newLatLngZoom(
                     new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16));
-        }
 	}
 	
 	private void getRestaurants() {
@@ -414,12 +486,12 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	        gMaps.addMarker(new MarkerOptions()
 				.title(restaurant.name)
 				.snippet(restaurant.address)
-				.position(restaurant.location));
+				.position(restaurant.location)
+				.icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant_marker)));
 	        gMaps.setOnInfoWindowClickListener(new OnInfoWindowClickListener() {
 
 				@Override
 				public void onInfoWindowClick(Marker marker) {
-					// TODO Auto-generated method stub
 					String location_of_restaurant = marker.getSnippet();
 					Restaurant restaurant = null;
 					for (int i =0 ; i < restaurant_array.size(); ++i) {
@@ -456,7 +528,13 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	@Override
 	public boolean onQueryTextSubmit(String text) {
 		// TODO Auto-generated method stub
-		findLocation(text);
+		if (text.equals("") || text == null) {
+			findLocation("Current Location", null);
+			
+		} else {
+			findLocation(text, null);
+		}
+		searchLocation.clearFocus();
 		return false;
 	}
 	
@@ -499,7 +577,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		
 	}
 	
-	class CustomListDirectionSteps extends ArrayAdapter<String> {
+	private class CustomListDirectionSteps extends ArrayAdapter<String> {
 		
 		Activity context;
 		String[] instructions;

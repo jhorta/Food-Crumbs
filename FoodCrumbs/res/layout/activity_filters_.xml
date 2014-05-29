@@ -6,74 +6,59 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.hortashorchatas.foodcrumbs.Directions_Activity$PlaceholderFragment" >
-
-    <EditText
-        android:id="@+id/start_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:inputType="text"
-        android:text="@string/str_my_current_location" />
-    
-    
-    <EditText
-        android:id="@+id/end_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/start_location"
-        android:ems="10"
-        android:hint="@string/str_end_location"
-        android:inputType="text" >
-        <requestFocus />
-    </EditText>
-
-    <!-- This is the start of the filters -->
+    tools:context="com.hortashorchatas.foodcrumbs.Filters_Activity$PlaceholderFragment" >
 
     <TextView
-        android:id="@+id/search_radius_label"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginTop="10dp"
-        android:text="" />
+        android:layout_alignParentTop="true"
+        android:textSize="36sp"
+        android:text="@string/str_filters" />
 
-    <Spinner
-        android:id="@+id/yelp_distance_filter_spinner"
+    <TextView
+        android:id="@+id/search_filter_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/search_radius_label" />
+        android:layout_below="@+id/title"
+        android:layout_marginTop="20dp"
+        android:text="@string/str_find_filters" />
 
     <EditText
-        android:id="@+id/yelp_search_query_filter"
+        android:id="@+id/search_filter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/search_radius_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignBaseline="@+id/search_filter_label"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/search_filter_label"
+        android:ems="10"
         android:hint="@string/str_yelp_search_query"
         android:inputType="text" />
-
-    <TextView
-        android:id="@+id/filter_text"
+    
+	<TextView
+        android:id="@+id/radius_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/yelp_search_query_filter"
         android:layout_alignParentLeft="true"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <RadioGroup
+        android:layout_below="@+id/search_filter_label"
+        android:layout_marginTop="15dp"
+        android:text="@string/str_radius_filters" />
+	
+	<Spinner
+        android:id="@+id/radius_filter_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/radius_label" />
+	
+	<RadioGroup
         android:id="@+id/radio_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/yelp_distance_filter_spinner"
+        android:layout_below="@+id/radius_filter_spinner"
         android:orientation="horizontal" >
 
         <RadioButton
@@ -90,7 +75,7 @@
             android:onClick="onRadioButtonClicked"
             android:text="@string/str_yelp_filter_distance" />
     </RadioGroup>
-
+    
     <TextView
         android:id="@+id/label_text_hours_or_miles"
         android:layout_width="wrap_content"

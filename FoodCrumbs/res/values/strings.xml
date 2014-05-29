@@ -22,7 +22,7 @@
     <string name="strt_loc_pin_drop">Start Location Pin Drop</string>
     <string name="end_loc_pin_drop">End Location Pin Drop</string>
     <string name="str_get_route">Get Route</string>
-    <string name="str_yelp_search_query">Enter Search Query&#8230;</string>
+    <string name="str_yelp_search_query">horchatas, fast food&#8230;</string>
     <string name="str_yelp_filter_time">Time</string>
     <string name="str_yelp_filter_distance">Distance</string>
     <string name="title_activity_launch__screen_">Launch_Screen_Activity</string>
@@ -50,4 +50,8 @@
     <string name="str_restaurant_website_placeholder">Restaurant Website</string>
     <string name="str_restaurant_dishes_placeholder">Dishes</string>
     <string name="str_restaurant_best_review_placeholder">Best Review</string>
+    <string name="title_activity_filters_">Filters_Activity</string>
+    <string name="str_filters">Filters</string>
+	<string name="str_find_filters">Find</string>
+	<string name="str_radius_filters">Radius:</string>
 </resources>

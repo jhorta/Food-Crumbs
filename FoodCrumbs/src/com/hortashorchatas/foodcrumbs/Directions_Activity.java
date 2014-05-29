@@ -2,7 +2,10 @@
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,19 +25,23 @@ import android.os.Build;
 
 public class Directions_Activity extends Activity implements OnItemSelectedListener {
 	
-	Spinner radius_filter_spinner;
+	private EditText start_location;
+	private EditText end_location;
+	private EditText search_query;
 	
-	RadioButton time_filter;
-	RadioButton distance_filter;
+	private Spinner radius_filter_spinner;
 	
-	TextView time_distance_filter_label;
-	EditText time_distance_filter_text;
+	private RadioButton time_filter;
+	private RadioButton distance_filter;
 	
-	Button submit_button;
+	private TextView time_distance_filter_label;
+	private EditText time_distance_filter_text;
 	
-	boolean isFilterTime;
+	private Button submit_button;
 	
-	String radius_Dist[] = {"0.5 mi", "1 mi", "2 mi", "5 mi", "10 mi", "20 mi"};
+	private boolean isFilterTime;
+	
+	private String radius_Dist[] = {"0.5 mi", "1 mi", "2 mi", "5 mi", "10 mi", "20 mi"};
 	
 	/**
 	 * Creates the activity. In this method, I connect all of the view objects to the 
@@ -51,6 +58,10 @@ public class Directions_Activity extends Activity implements OnItemSelectedListe
 		
 		final TextView radius_label = (TextView) findViewById(R.id.search_radius_label);
 		radius_label.setText("Search Radius: ");
+		
+		start_location = (EditText) findViewById(R.id.start_location);
+		end_location = (EditText) findViewById(R.id.end_location);
+		search_query = (EditText) findViewById(R.id.yelp_search_query_filter);
 				
 		radius_filter_spinner = (Spinner) findViewById(R.id.yelp_distance_filter_spinner);
 		
@@ -76,7 +87,49 @@ public class Directions_Activity extends Activity implements OnItemSelectedListe
 
 			@Override
 			public void onClick(View v) {
-				
+				if (start_location.getText().toString().equals("") || start_location.getText().toString() == null) {
+					final AlertDialog.Builder dialog = new AlertDialog.Builder(Directions_Activity.this);
+					dialog.setTitle("Error!");
+					dialog.setMessage("Please input an origin!");
+					dialog.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+					dialog.show();
+				} else if (end_location.getText().toString().equals("") || end_location.getText().toString() == null) {
+					final AlertDialog.Builder dialog = new AlertDialog.Builder(Directions_Activity.this);
+					dialog.setTitle("Error!");
+					dialog.setMessage("Please input a destination!");
+					dialog.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+					});
+					dialog.show();
+				} else {
+					Intent i = getIntent();
+					i.putExtra("Start Location", start_location.getText().toString());
+					i.putExtra("End Location", end_location.getText().toString());
+					i.putExtra("Search Query", search_query.getText().toString());
+					int radius_position = radius_filter_spinner.getSelectedItemPosition();
+					String radius_string = radius_Dist[radius_position].replace(" mi", "");
+					i.putExtra("Radius", radius_string);
+					if (time_distance_filter_text.getText().toString().equals("") || time_distance_filter_text.getText().toString() == null) {
+						i.putExtra("Time", "0");
+						i.putExtra("Distance", "0");
+					} else if (isFilterTime) {
+						i.putExtra("Time", time_distance_filter_text.getText().toString());
+						i.putExtra("Distance", "0");
+					} else {
+						i.putExtra("Time", "0");
+						i.putExtra("Distance", time_distance_filter_text.getText().toString());
+					}
+					setResult(RESULT_OK, i);
+					finish();
+				}
 			}
 		});
 	}
