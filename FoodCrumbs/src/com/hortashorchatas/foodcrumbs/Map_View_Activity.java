@@ -409,6 +409,8 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			destination = "destination="+endLocation;
 		}
 		
+		search_type = search_type.replace(" ", "%20");
+		
 		if (time_in == 0) {
 			time_filter = "";
 		} else {
