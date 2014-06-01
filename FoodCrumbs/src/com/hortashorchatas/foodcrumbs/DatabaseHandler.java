@@ -3,6 +3,7 @@ package com.hortashorchatas.foodcrumbs;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.hortashorchatas.foodcrumbs.Restaurant;
 
 import android.content.ContentValues;
@@ -33,7 +34,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String TABLE_FAVORITES = "favorites";
     private static final String TABLE_INFO = "info";
  
-    // Favorites Table Columns names
+    // Favorites Table Columns keys
     private static final String KEY_ID = "id";
     private static final String KEY_REFERENCE_ID = "reference";
     private static final String KEY_NAME = "name";
@@ -43,6 +44,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String KEY_LONGITUDE = "longitude";
     private static final String KEY_RATING = "rating";
     
+    // User Info Table Column keys
     private static final String KEY_PROF_PIC_URL = "picture";
     private static final String KEY_PROF_NAME = "name";
     private static final String KEY_IS_FIRST_INSTALL = "first_install";
@@ -51,7 +53,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
     
- // Creating Tables
+    /**
+     * Creates a both a Favorites Table and a User Info Table
+     * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
@@ -75,6 +80,11 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         onCreate(db);
     }
     
+    /**
+     * This function adds profile information such as the profile picture url and the user's name into
+     * the User Info Table.
+     * @return none
+     */
     public void addProfileInfo(String prof_pic_url, String name, int value) {
     	SQLiteDatabase db = this.getWritableDatabase();
     	
@@ -87,6 +97,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     	db.close();
     }
     
+    /**
+     * This function gets whether or not the app is opening after the install or subsequently.
+     * @return integer 0 or 1
+     */
     public int getIsFirstInstall() {
     	int firstInstall = 0;
     	
@@ -99,6 +113,11 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     	return firstInstall;
     }
     
+    /**
+     * This gets the String representation of a uri that would lead to the directory of the profile
+     * picture that the user has chosen in the Main Menu.
+     * @return String
+     */
     public String getProfilePic() {
     	String prof_pic = "";
     	
@@ -111,6 +130,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     	return prof_pic;
     }
     
+    /**
+     * This gets the name of the User that User has input on first install.
+     * @return String
+     */
     public String getProfileName() {
     	String name = "";
     	
@@ -123,6 +146,13 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     	return name;
     }
     
+    /**
+     * When user updates their profile information through the settings tab in the Main Menu, this is called
+     * to update the values in the User Info page.
+     * @param prof_pic_url
+     * @param name
+     * @param value
+     */
 	public void updateProfileInfo(String prof_pic_url, String name, int value)
 	{
 		ContentValues values = new ContentValues(3);
@@ -133,9 +163,11 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 		getWritableDatabase().update(TABLE_INFO, values, null, null);
 	}
     
-    //addFavorite()
-    // Adding new favorite
-    
+	/**
+	 * This method adds a favorite Restaurant to the Database to the Favorites table. It takes in a parameter
+	 * Restaurant, and each variable within the Restaurant class will be stored into the table.
+	 * @param favorite
+	 */
 	public void addFavorite(Restaurant favorite) {
 	
 	    SQLiteDatabase db = this.getWritableDatabase();
@@ -157,8 +189,13 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	}
 	
 	
-	//Getting single favorite
-	Restaurant getFavorite(int id) {
+	/**
+	 * This method will get a single Favorite Restaurant from the Database. It will return a single Restaurant
+	 * class type with all of the variables initiated based on the values from the Table.
+	 * @param id
+	 * @return Restaurant
+	 */
+	public Restaurant getFavorite(int id) {
 	    SQLiteDatabase db = this.getReadableDatabase();
 	
 	    Cursor cursor = db.query(TABLE_FAVORITES, new String[] { KEY_ID, KEY_REFERENCE_ID,
@@ -167,14 +204,38 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	    if (cursor != null)
 	        cursor.moveToFirst();
 	
-	    Restaurant favorite = new Restaurant(cursor.getString(0), cursor.getString(1),
-	            cursor.getString(2), cursor.getString(3), null, cursor.getString(4));
+	    Restaurant favorite = new Restaurant(cursor.getString(1), cursor.getString(0),
+	            cursor.getString(2), cursor.getString(3), 
+	            new LatLng(Double.parseDouble(cursor.getString(5)), Double.parseDouble(cursor.getString(6))), 
+	            cursor.getString(4));
 	    // return favorite
 	    return favorite;
 	}
 	
+	/**
+	 * This method will get whether or not a particular Restaurant is a Favorite or not based on the restaurant's
+	 * reference id. This method will be used by the Restaurant Activity class to determine whether or not a particular
+	 * Restaurant is a favorite.
+	 * @param reference_id
+	 * @return
+	 */
+	public boolean getIsFavorite(String reference_id) {
+	    SQLiteDatabase db = this.getReadableDatabase();
+	    
+	    Cursor cursor = db.rawQuery("SELECT "+KEY_NAME+" FROM "+TABLE_FAVORITES+" WHERE "+KEY_REFERENCE_ID+"='"+reference_id+"'", null);
+	    if (cursor != null && cursor.getCount() > 0) {
+	    	return true;
+	    } else {
+	    	return false;
+	    }
+	}
 	
-	//Getting All Favorites
+	
+	/**
+	 * This method gets an ArrayList of Restaurant types of all the Restaurants that are favorites within
+	 * the Database. This method is used by the Favorites Activity class to get all favorites.
+	 * @return ArrayList<Restaurant>
+	 */
 	public ArrayList<Restaurant> getAllFavorites() {
 		
 		ArrayList<Restaurant> favoriteList = new ArrayList<Restaurant>();
@@ -212,7 +273,11 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	}
 	
 	
-	//Updating single favorite
+	/**
+	 * Updates the values of a single Favorite Restaurant in the Database. Takes a Restaurant favorite.
+	 * @param favorite
+	 * @return int
+	 */
 	public int updateFavorite(Restaurant favorite) {
 	    SQLiteDatabase db = this.getWritableDatabase();
 	
@@ -231,7 +296,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	            new String[] { String.valueOf(favorite.business_id) });
 	}
 	
-	//Deleting single favorite
+	/**
+	 * Deletes a single Favorite from the Database with a Restaurant.
+	 * @param favorite
+	 */
 	public void deleteFavorite(Restaurant favorite) {
 	    SQLiteDatabase db = this.getWritableDatabase();
 	    db.delete(TABLE_FAVORITES, KEY_ID + " = ?",
@@ -239,7 +307,19 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	    db.close();
 	}
 	
-	//Getting favorites Count
+	/**
+	 * Deletes a single Favorite from the Database with a reference id.
+	 * @param reference_id
+	 */
+	public void deleteFavorite(String reference_id) {
+	    SQLiteDatabase db = this.getWritableDatabase();
+	    db.delete(TABLE_FAVORITES, KEY_REFERENCE_ID+"="+reference_id, null);
+	}
+	
+	/**
+	 * This method returns the number of favorites within the favorites database.
+	 * @return int
+	 */
 	public int getFavoriteCount() {
 	    String countQuery = "SELECT  * FROM " + TABLE_FAVORITES;
 	    SQLiteDatabase db = this.getReadableDatabase();

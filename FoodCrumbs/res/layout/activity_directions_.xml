@@ -106,7 +106,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/radio_group"
         android:layout_toLeftOf="@+id/label_text_hours_or_miles"
-        android:inputType="text" />
+        android:inputType="number" />
 
     <Button
         android:id="@+id/submit_button"

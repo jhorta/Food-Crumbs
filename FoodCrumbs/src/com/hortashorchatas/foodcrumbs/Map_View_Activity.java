@@ -30,11 +30,13 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -83,12 +85,16 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	private TextView directions_overview;
 	private ListView directions_list;
 	private SearchView searchLocation;
+	private LocationListener locationListener;
 	
 	private String provider;
 	private String search_type;
 	private double radius;
 	private double time_in;
 	private double distance_in;
+	
+	private boolean isScrollable;
+	private boolean isRoute;
 	
     public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
 
@@ -127,26 +133,39 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			enableLocationServices.show();
 		}
 		
-		search_type = "restaurant";
-		radius = 0.5;
-		time_in = 0;
-		distance_in = 0;
+		locationListener = new LocationListener() {
+
+			@Override
+			public void onLocationChanged(Location location) {
+				// TODO Auto-generated method stub
+				myLocation = location;
+				Log.d("Location Changed", String.valueOf(myLocation));
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onProviderEnabled(String provider) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void onProviderDisabled(String provider) {
+				// TODO Auto-generated method stub
+			}
+		};
 		
 		mMapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-				
+		
         gMaps = mMapFragment.getMap();
         
 		gMaps.setMyLocationEnabled(true);
 		gMaps.getUiSettings().setMyLocationButtonEnabled(true);
-				
-        zoomToCurrLocation();
-        
-        json_reponse_parser = new String_Parser();
-        
-        directions_overview = (TextView) findViewById(R.id.directions_overview_description);
-                
-//        findLocation("Palo Alto", "Los Angeles");
-        
+		        
         sPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         sPanel.setPanelHeight(0);
         sPanel.setPanelSlideListener(new PanelSlideListener() {
@@ -158,7 +177,8 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 
             @Override
             public void onPanelExpanded(View panel) {
-            	sPanel.setSlidingEnabled(false);
+            	if (isScrollable)
+            		sPanel.setSlidingEnabled(false);
             }
 
             @Override
@@ -178,26 +198,41 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         	
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-            	final int currentFirstVisibleItem = directions_list.getFirstVisiblePosition();
+            	if (isScrollable) {
+                	final int currentFirstVisibleItem = directions_list.getFirstVisiblePosition();
 
-                if (currentFirstVisibleItem > mLastFirstVisibleItem) {
-                    mIsScrollingUp = false;
-                } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
-                    mIsScrollingUp = true;
-                }
-                
-                if (mIsScrollingUp) {
-                	sPanel.setSlidingEnabled(true);
-                } else {
-                	sPanel.setSlidingEnabled(false);
-                }
+                    if (currentFirstVisibleItem > mLastFirstVisibleItem) {
+                        mIsScrollingUp = false;
+                    } else if (currentFirstVisibleItem < mLastFirstVisibleItem) {
+                        mIsScrollingUp = true;
+                    }
+                    
+                    if (mIsScrollingUp) {
+                    	sPanel.setSlidingEnabled(true);
+                    } else {
+                    	sPanel.setSlidingEnabled(false);
+                    }
 
-                mLastFirstVisibleItem = currentFirstVisibleItem;
+                    mLastFirstVisibleItem = currentFirstVisibleItem;
+            	}
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {}
+        });
+                
+        directions_overview = (TextView) findViewById(R.id.directions_overview_description);
+        directions_overview.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (sPanel.isEnabled()) {
+					sPanel.setSlidingEnabled(false);
+				} else {
+					sPanel.setSlidingEnabled(true);
+				}
+			}
         });
         
         boolean actionBarHidden = savedInstanceState != null && savedInstanceState.getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -205,7 +240,40 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
             int actionBarHeight = getActionBarHeight();
             setActionBarTranslation(-actionBarHeight);//will "hide" an ActionBar
         }
-	}
+        
+        json_reponse_parser = new String_Parser();
+        
+        // sets my location
+		getCurrentLocation();
+				
+		Intent i = getIntent();
+		String source = i.getStringExtra("Source");
+		if (source.equals(Globals.SOURCE_RANDOM_GENERATOR)) {
+			search_type = i.getStringExtra("Random Filter");
+			radius = 1;
+			time_in = 0;
+			distance_in = 0;
+			isRoute = false;
+			
+			findLocation("Current Location", null);
+		} else if (source.equals(Globals.SOURCE_FAVORITES)) {
+			search_type = i.getStringExtra("Favorite Filter");
+			radius = 1;
+			time_in = 0;
+			distance_in = 0;
+			isRoute = false;
+			
+			findLocation("Current Location", null);
+		} else {
+			search_type = "restaurant";
+			radius = 1;
+			time_in = 0;
+			distance_in = 0;
+			isRoute = false;
+
+	        zoomToCurrLocation();
+		}
+ 	}
 	
     private int getActionBarHeight(){
         int actionBarHeight = 0;
@@ -253,7 +321,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchLocation = (SearchView) MenuItemCompat.getActionView(searchItem);
 		searchLocation.setQueryHint("Current Location");
-		searchLocation.setSubmitButtonEnabled(true);
 		searchLocation.setIconifiedByDefault(true);
 		searchLocation.setOnQueryTextListener(this);
 		
@@ -297,6 +364,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         		time_in = Double.parseDouble(data.getExtras().getString("Time"));
         		distance_in = Double.parseDouble(data.getExtras().getString("Distance"));
         		
+        		isRoute = true;
         		findLocation(start_location, end_location);
         	} else if (requestCode == FILTERS_REQUESTED) {
         		if (!data.getExtras().getString("Search Query").equals("")) {
@@ -315,21 +383,22 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 * @param query
 	 */
 	private void findLocation(String startLocation, String endLocation) {
+		gMaps.clear();
+
 		String origin = "";
 		String destination = "";
 		String time_filter = "";
 		String distance_filter = "";
-		
-		startLocation = startLocation.replace(" ", "%20");
-		
+				
 		if (startLocation.equals("Current Location")) {
-			origin = "origin="+String.valueOf(myLocation.getLatitude())+"&origin="+String.valueOf(myLocation.getLongitude());
+			origin = "origin="+String.valueOf(myLocation.getLatitude())+","+String.valueOf(myLocation.getLongitude());
 		} else {
+			startLocation = startLocation.replace(" ", "%20");
 			origin = "origin="+startLocation;
 		}
 		
 		if (endLocation == null) {
-			destination = "destination=NULL";
+			destination = "destination=";
 		} else if (endLocation.startsWith("LatLngForm:")) {
 			String end_location = endLocation.replace("LatLngForm:", "");
 			String delims = "[,]";
@@ -341,29 +410,42 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		}
 		
 		if (time_in == 0) {
-			time_filter = "NULL";
+			time_filter = "";
 		} else {
 			time_filter = String.valueOf(time_in);
 		}
 		
 		if (distance_in == 0) {
-			distance_filter = "NULL";
+			distance_filter = "";
 		} else {
 			distance_filter = String.valueOf(distance_in);
 		}
 		
 		try {
-			URL url = new URL(new String("http://ucsdfoodcrumbs.herokuapp.com/get_restaurant_lists?"+origin+"&"+destination+"&places_filter="+search_type+"&radius="+String.valueOf(radius)+"&time="+time_filter+"&distance="+distance_filter));
+			URL url = new URL(new String("http://192.241.180.205:9292/get_restaurant_lists?"+origin+"&"+destination+"&places_filter="+search_type+"&radius="+String.valueOf(radius)+"&time="+time_filter+"&distance="+distance_filter));
+			
+			Log.i("This is the URL", url.toExternalForm());
+
 			new getDirectionsFromServer().execute(url);
+						
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			final AlertDialog.Builder dialog = new AlertDialog.Builder(Map_View_Activity.this);
+			dialog.setTitle("We are sorry!");
+			dialog.setMessage("Couldn't connect to server! Please check your connection!");
+			dialog.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			});
+			dialog.show();
 		}
 	}
 	
 	private void getLocationArray() {
 		try {
-			
 			directions_array = json_reponse_parser.getDirections();	
 			totalDirection = json_reponse_parser.getTotalDirections();
 			direction_steps_array = json_reponse_parser.getDirectionSteps();
@@ -379,9 +461,22 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 //				Log.i("LatLng Start Loc", "latitude: " + temp.getStartLocation().latitude + " longitude: " + temp.getStartLocation().longitude);
 //				Log.i("LatLng End Loc", "latitude: " + temp.getEndLocation().latitude + "longitude: " + temp.getEndLocation().longitude);
 //			}
-			show_directions();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
+			if (isRoute) {
+				show_directions();
+			}
+			
+			getRestaurants();
+		} catch (Exception e) {
+			final AlertDialog.Builder dialog = new AlertDialog.Builder(Map_View_Activity.this);
+			dialog.setTitle("We are sorry!");
+			dialog.setMessage("Couldn't connect to server! Please check your connection!");
+			dialog.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+			});
+			dialog.show();
 			e.printStackTrace();
 		}
 		
@@ -442,27 +537,52 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         CustomListDirectionSteps directions_steps_adapter = new CustomListDirectionSteps(this, instructions, imageIds);
         
         directions_list.setAdapter(directions_steps_adapter);
+        
+        Runnable fitsOnScreen = new Runnable() {
+            @Override
+            public void run() {
+                int last = directions_list.getLastVisiblePosition();
+                if (last == directions_list.getCount() - 1 && directions_list.getChildAt(last).getBottom() <= directions_list.getHeight()) {
+                    sPanel.setSlidingEnabled(true);
+                    isScrollable = false;
+                } else {
+                	isScrollable = true;
+                }
+            }
+        };
+        
+        directions_list.post(fitsOnScreen);
+	}
+	
+	private void getCurrentLocation() {
+		boolean isGPSEnabled = locationServices.isProviderEnabled(LocationManager.GPS_PROVIDER);
+		
+		if (isGPSEnabled) {
+			Location currLoc = locationServices.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+			
+			if (currLoc == null) {
+				currLoc = locationServices.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+			}
+			
+			if (currLoc != null) {
+				myLocation = currLoc;
+				locationServices.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+			} else {
+				myLocation.setLatitude(0); 
+				myLocation.setLongitude(0);
+			}
+		}
 	}
 
 	/**
 	 * This should zoom to your current location on the map. If it does not go to your 
 	 * current location on the map, something is wrong.
 	 */
-	private void zoomToCurrLocation() {		
-		LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-		myLocation = locationServices.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		
-		if (myLocation == null) {
-			Criteria criteria = new Criteria();
-	        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-	        String provider = lm.getBestProvider(criteria, true);
-	        myLocation = lm.getLastKnownLocation(provider);
-		}		
-
-            gMaps.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16));
+	private void zoomToCurrLocation() {				
+        gMaps.animateCamera(CameraUpdateFactory.newLatLngZoom(
+        		new LatLng(myLocation.getLatitude(), myLocation.getLongitude()), 16));
 	}
-	
+	 
 	private void getRestaurants() {
 		try {
 			
@@ -527,7 +647,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	 */
 	@Override
 	public boolean onQueryTextSubmit(String text) {
-		// TODO Auto-generated method stub
+		isRoute = false;
 		if (text.equals("") || text == null) {
 			findLocation("Current Location", null);
 			
@@ -539,6 +659,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	}
 	
 	private class getDirectionsFromServer extends AsyncTask<URL, Void, String> {
+	    private ProgressDialog dialog;
 
 		@Override
 		protected String doInBackground(URL... urls) {
@@ -563,16 +684,34 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 					// TODO Auto-generated catch block
 					Log.i("There was an error", e1.toString());
 					e1.printStackTrace();
+					
+					final AlertDialog.Builder dialog = new AlertDialog.Builder(Map_View_Activity.this);
+					dialog.setTitle("We are sorry!");
+					dialog.setMessage("Couldn't connect to server! Please check your connection!");
+					dialog.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
+						}
+					});
+					dialog.show();
 				} 
 			}
 			return sb.toString();
 		}
 		
 		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(Map_View_Activity.this, "Please wait ...", "Processing...", true);
+		}
+		
+		@Override
 		protected void onPostExecute(String result) {
+	        if (dialog.isShowing()) {
+	            dialog.dismiss();
+	        }
 			json_reponse_parser.setNewQueryReponse(result);
 			getLocationArray();
-			getRestaurants();
 		}
 		
 	}

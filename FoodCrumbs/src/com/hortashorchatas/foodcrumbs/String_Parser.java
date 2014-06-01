@@ -4,6 +4,8 @@
 package com.hortashorchatas.foodcrumbs;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
 
 import org.json.JSONException;
 //import org.json.simple.JSONArray;
@@ -13,6 +15,8 @@ import org.json.JSONException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 //import org.json.JSONTokener;
+
+
 
 
 
@@ -48,7 +52,7 @@ public class String_Parser {
 		JSONArray results = null;
 		
 		if (server_response != null) {
-			place = server_response.getJSONObject("place1");
+			place = server_response.getJSONObject("places");
 			results = place.getJSONArray("results");
 		}
 		
@@ -233,7 +237,67 @@ public class String_Parser {
 		
 		return dirList;
 	}
-	
+
+	public HashMap<String, String> getDetails() throws JSONException {
+		HashMap<String, String> details = new HashMap<String, String>();
+		JSONObject result = server_response.getJSONObject("result");
+		
+		if (result.getString("formatted_address") != null) {
+			details.put("address", result.getString("formatted_address"));
+		} else {
+			details.put("address", "");
+		}
+		
+		if (result.getString("international_phone_number") != null) {
+			details.put("phone number", result.getString("international_phone_number"));
+		} else {
+			details.put("phone number", "");
+		}
+		
+		JSONObject geometry = result.getJSONObject("geometry");
+		JSONObject location = geometry.getJSONObject("location");
+
+		double latitude = location.getDouble("lat");
+		double longitude = location.getDouble("lng");
+		
+		details.put("latitude", String.valueOf(latitude));
+		details.put("longitude", String.valueOf(longitude));
+				
+		if (result.getString("id") != null) {
+			details.put("id", result.getString("id"));
+		} else {
+			details.put("id", "");
+		}
+		
+		if (result.getString("name") != null) {
+			details.put("name", result.getString("name"));
+		} else {
+			details.put("name", "");
+		}
+		
+		if (result.getString("rating") != null) {
+			details.put("rating", result.getString("rating"));
+		} else {
+			details.put("rating", "");
+		}
+		
+		if (result.getString("website") != null) {
+			details.put("website", result.getString("website"));
+		} else {
+			details.put("website", "");
+		}
+		
+		JSONArray photos = result.getJSONArray("photos");
+		JSONObject photos_sub = photos.getJSONObject(0);
+		
+		if (photos_sub != null) {
+			details.put("photo", photos_sub.getString("photo_reference"));
+			details.put("height", photos_sub.getString("height"));
+			details.put("width", photos_sub.getString("width"));
+		}
+		
+		return details;
+	}
     private ArrayList<LatLng> decodePoly(String encoded) {
         ArrayList<LatLng> poly = new ArrayList<LatLng>();
         int index = 0, len = encoded.length();

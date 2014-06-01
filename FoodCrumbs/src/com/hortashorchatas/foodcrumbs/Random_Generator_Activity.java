@@ -46,6 +46,7 @@ public class Random_Generator_Activity extends Activity {
 				// TODO Auto-generated method stub
 				if (canTouchTextView) {
 					Intent i = new Intent(getApplicationContext(), Map_View_Activity.class);
+					i.putExtra("Source", Globals.SOURCE_RANDOM_GENERATOR);
 					i.putExtra("Random Filter", types[random_type_index]);
 					startActivity(i);
 					finish();

@@ -26,16 +26,8 @@ public class Filters_Activity extends Activity implements OnItemSelectedListener
 	
 	private Spinner radius_filter_spinner;
 	
-	private RadioButton time_filter;
-	private RadioButton distance_filter;
-	
-	private TextView time_distance_filter_label;
-	private EditText time_distance_filter_text;
-	
 	private Button submit_button;
-	
-	private boolean isFilterTime;
-	
+		
 	private String radius_Dist[] = {"0.5 mi", "1 mi", "2 mi", "5 mi", "10 mi", "20 mi"};
 
 	@Override
@@ -54,17 +46,6 @@ public class Filters_Activity extends Activity implements OnItemSelectedListener
 		radius_filter_spinner.setAdapter(adapter_state);
 		radius_filter_spinner.setOnItemSelectedListener(this);
 		
-		time_filter = (RadioButton) findViewById(R.id.radio_button_filter_time);
-		time_filter.toggle();
-		distance_filter = (RadioButton) findViewById(R.id.radio_button_filter_distance);
-		
-		isFilterTime = true;
-		
-		time_distance_filter_label = (TextView) findViewById(R.id.label_text_hours_or_miles);
-		time_distance_filter_label.setText("Hours");
-		
-		time_distance_filter_text = (EditText) findViewById(R.id.edit_text_hours_or_miles);
-		
 		submit_button = (Button) findViewById(R.id.submit_button);
 		submit_button.setOnClickListener(new OnClickListener() {
 
@@ -75,41 +56,10 @@ public class Filters_Activity extends Activity implements OnItemSelectedListener
 				int radius_position = radius_filter_spinner.getSelectedItemPosition();
 				String radius_string = radius_Dist[radius_position].replace(" mi", "");
 				i.putExtra("Radius", radius_string);
-				if (time_distance_filter_text.getText().toString().equals("") || time_distance_filter_text.getText().toString() == null) {
-					i.putExtra("Time", "0");
-					i.putExtra("Distance", "0");
-				} else if (isFilterTime) {
-					i.putExtra("Time", time_distance_filter_text.getText().toString());
-					i.putExtra("Distance", "0");
-				} else {
-					i.putExtra("Time", "0");
-					i.putExtra("Distance", time_distance_filter_text.getText().toString());
-				}
 				setResult(RESULT_OK, i);
 				finish();
 			}
 		});
-	}
-	
-	public void onRadioButtonClicked(View view) {
-	    boolean checked = ((RadioButton) view).isChecked();
-	    
-	    switch(view.getId()) {
-	    	case R.id.radio_button_filter_time:
-	    		if (checked) {
-	    			isFilterTime = true;
-	    			time_distance_filter_label.setText("Hours");
-	    			distance_filter.setChecked(false);
-	    		}
-	    		break;
-	    	case R.id.radio_button_filter_distance:
-	    		if (checked) {
-	    			isFilterTime = false;
-	    			time_distance_filter_label.setText("Miles");
-	    			time_filter.setChecked(false);
-	    		}
-	    		break;
-	    }
 	}
 
 	@Override

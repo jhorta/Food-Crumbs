@@ -1,19 +1,30 @@
 package com.hortashorchatas.foodcrumbs;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Dictionary;
+import java.util.HashMap;
+
+import org.json.JSONException;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.Html;
@@ -32,23 +43,57 @@ import android.widget.TextView;
 public class RestaurantActivity extends Activity {
 	private String[] restaurant_hours = new String[7];
 	private ImageView restaurant_image;
+	private ImageView favorite_star;
+	
 	private TextView restaurant_name;
 	private TextView restaurant_address;
+	
 	private Spinner restaurant_hours_spinner;
+	
 	private TextView restaurant_phone_number;
 	private TextView restaurant_rating;
 	private TextView restaurant_website;
+	
+	private String_Parser json_reponse_parser;
+	
+	private HashMap<String, String> details;
+	
+	private boolean isFavorite;
+	
+	private String restaurant_id_reference;
+	private String restaurant_name_reference;
+	private String restaurant_address_reference;
+	private double restaurant_latitude_reference;
+	private double restaurant_longitude_reference;
+	private String restaurant_rating_reference;
+	
+	private DatabaseHandler db;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_restaurant);
 		
+		restaurant_id_reference = "";
+		restaurant_rating_reference = "";
+		restaurant_address_reference = "";
+		restaurant_latitude_reference = 0;
+		restaurant_latitude_reference = 0;
+		restaurant_name_reference = "";
+		
+        json_reponse_parser = new String_Parser();
+        
+        details = new HashMap<String, String>();
+		
 		Intent i = getIntent();
-		String restaurant_reference = i.getStringExtra("restaurant_reference_id");
+		final String restaurant_reference = i.getStringExtra("restaurant_reference_id");
+		
+		db = new DatabaseHandler(this);
+		isFavorite = db.getIsFavorite(restaurant_reference);
 		
 		try {
-			URL url = new URL("http://ucsdfoodcrumbs.herokuapp.com/details?reference=" + restaurant_reference);
+			URL url = new URL(new String("http://192.241.180.205:9292/restaurantInfo?reference=" + restaurant_reference));
+//			URL url = new URL("https://maps.googleapis.com/maps/api/place/details/json?reference="+restaurant_reference+"&sensor=true&key="+Globals.GOOGLE_PLACES_API_KEY);
 			new getDetailsFromServer().execute(url);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -123,18 +168,31 @@ public class RestaurantActivity extends Activity {
 	            "<a href=\"http://subway.com\">http://subway.com</a> "));
 		restaurant_website.setMovementMethod(LinkMovementMethod.getInstance());
 		restaurant_website.setTypeface(null, Typeface.BOLD);
-/*		
-		String name = restaurant.name;
-		String rating = restaurant.rating;
-		String address = restaurant.address;
-		String id = restaurant.business_id;
+		
+		favorite_star = (ImageView) findViewById(R.id.restaurant_favorite);
+		if (isFavorite) {
+			favorite_star.setImageResource(R.drawable.ic_favorite);
+		}
+		
+		favorite_star.setOnClickListener(new OnClickListener() {
 
-		TextView name_text = (TextView) findViewById(R.id.restaurant_name);
-		name_text.setText(name);
-		TextView address_text = (TextView) findViewById(R.id.address);
-		address_text.setText(address);
-		*/
-
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				if (isFavorite) {
+					isFavorite = false;
+					favorite_star.setImageResource(R.drawable.ic_not_favorite);
+					db.deleteFavorite(restaurant_reference);
+				} else {
+					isFavorite = true;
+					favorite_star.setImageResource(R.drawable.ic_favorite);
+					Restaurant restaurant = new Restaurant(restaurant_reference, restaurant_id_reference, restaurant_name_reference,
+							restaurant_address_reference, new LatLng(restaurant_latitude_reference, restaurant_longitude_reference),
+							restaurant_rating_reference);
+					db.addFavorite(restaurant);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -144,7 +202,67 @@ public class RestaurantActivity extends Activity {
 		return true;
 	}
 	
+	private void getDetails() {
+		try {
+			details = json_reponse_parser.getDetails();
+			
+			if (!details.get("photo").equals("")) {
+				ImageDownloadTask[] imageDownloadTask = new ImageDownloadTask[1];
+				String url = new String("https://maps.googleapis.com/maps/api/place/photo?photoreference="+details.get("photo")+"&sensor=false&maxheight="+details.get("height")+"&maxwidth="+details.get("width")+"&key="+Globals.GOOGLE_PLACES_API_KEY);
+				imageDownloadTask[0] = new ImageDownloadTask();
+				imageDownloadTask[0].execute(url);
+			}
+			
+			restaurant_id_reference = details.get("id");
+			restaurant_rating_reference = details.get("rating");
+			restaurant_address_reference = details.get("address");
+			restaurant_latitude_reference = Double.parseDouble(details.get("latitude"));
+			restaurant_latitude_reference = Double.parseDouble(details.get("longitude"));
+			restaurant_name_reference = details.get("name");
+			
+			restaurant_name.setText(restaurant_name_reference);
+			restaurant_address.setText(restaurant_address_reference);
+			restaurant_phone_number.setText(details.get("phone number"));
+			restaurant_rating.setText(details.get("rating"));
+			restaurant_website.setText(Html.fromHtml(
+		            "<a href=\""+details.get("website")+"\">http://subway.com</a> "));
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	private void setImage(Bitmap result) {
+		restaurant_image.setImageBitmap(result);
+	}
+	
+    private Bitmap downloadImage(String strUrl) throws IOException{
+        Bitmap bitmap=null;
+        InputStream iStream = null;
+        try{
+            URL url = new URL(strUrl);
+ 
+            /** Creating an http connection to communcate with url */
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+ 
+            /** Connecting to url */
+            urlConnection.connect();
+ 
+            /** Reading data from url */
+            iStream = urlConnection.getInputStream();
+ 
+            /** Creating a bitmap from the stream returned from the url */
+            bitmap = BitmapFactory.decodeStream(iStream);
+ 
+        }catch(Exception e){
+            Log.d("Exception while downloading url", e.toString());
+        }finally{
+            iStream.close();
+        }
+        return bitmap;
+    }
+    
 	private class getDetailsFromServer extends AsyncTask<URL, Void, String> {
+	    private ProgressDialog dialog;
 
 		@Override
 		protected String doInBackground(URL... urls) {
@@ -174,8 +292,40 @@ public class RestaurantActivity extends Activity {
 		}
 		
 		@Override
+		protected void onPreExecute() {
+			dialog = ProgressDialog.show(RestaurantActivity.this, "Please wait ...", "Loading Restaurant...", true);
+		}
+
+		@Override
 		protected void onPostExecute(String result) {
+	        if (dialog.isShowing()) {
+	            dialog.dismiss();
+	        }
+			json_reponse_parser.setNewQueryReponse(result);
 			
+			getDetails();
+			Log.i("Ohs yarhh", result);
 		}
 	}
+	
+	 private class ImageDownloadTask extends AsyncTask<String, Integer, Bitmap>{
+	        Bitmap bitmap = null;
+	        @Override
+	        protected Bitmap doInBackground(String... url) {
+	            try{
+	                // Starting image download
+	                bitmap = downloadImage(url[0]);
+	            }catch(Exception e){
+	                Log.d("Background Task",e.toString());
+	            }
+	            return bitmap;
+	        }
+	 
+	        @Override
+	        protected void onPostExecute(Bitmap result) {
+	            setImage(result);
+	        }
+	        
+	        
+	    }
 }

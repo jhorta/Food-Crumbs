@@ -333,6 +333,7 @@ public class Main_Menu_Activity extends ActionBarActivity {
 	 */
 	public void toMapView(View view) {
 		Intent i = new Intent(getApplicationContext(), Map_View_Activity.class);
+		i.putExtra("Source", Globals.SOURCE_HOME_PAGE);
 		startActivity(i);
 	}
 	

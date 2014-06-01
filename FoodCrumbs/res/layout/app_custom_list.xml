@@ -12,6 +12,6 @@
             android:id="@+id/dir_instruction"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_marginRight="10dp" />
+            android:minLines="2"/>
    </TableRow>
 </TableLayout>

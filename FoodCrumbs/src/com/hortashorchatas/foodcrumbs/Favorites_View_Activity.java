@@ -9,7 +9,9 @@ import com.google.android.gms.maps.model.LatLng;
 
 import android.app.Activity;
 import android.app.ActionBar;
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -19,6 +21,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.os.Build;
@@ -28,7 +35,7 @@ public class Favorites_View_Activity extends Activity {
 	private DatabaseHandler db;
 	private SimpleAdapter simpleAdpt;
 	private List<Map<String, String>> favoriteList = new ArrayList<Map<String, String>>();
-	
+	ListView faveList;
 	private final String faveKey = "newFavorite";
 
 	@Override
@@ -39,7 +46,7 @@ public class Favorites_View_Activity extends Activity {
 
 		makeList();
 
-		ListView faveList = (ListView) findViewById(R.id.listView);
+		faveList = (ListView) findViewById(R.id.listView);
 		simpleAdpt = new SimpleAdapter(this, favoriteList, android.R.layout.simple_list_item_1, new String[] {faveKey}, new int[] {android.R.id.text1});
 		faveList.setAdapter(simpleAdpt);
 
@@ -47,6 +54,17 @@ public class Favorites_View_Activity extends Activity {
 			getFragmentManager().beginTransaction()
 					.add(R.id.container, new PlaceholderFragment()).commit();
 		}
+		
+        faveList.setOnItemLongClickListener(new OnItemLongClickListener() {
+            // setting onItemLongClickListener and passing the position to the function
+                      public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                    int position, long arg3) {
+                removeItemFromList(position);   
+                
+                return true;
+            }
+        });
+		
 	}
 
 	@Override
@@ -86,6 +104,8 @@ public class Favorites_View_Activity extends Activity {
 		}
 	}
 	
+
+	
 	private void makeList()
 	{
 		db.addFavorite(new Restaurant("abcdefg", "1", "Burger King", "3500 Gillman Dr.", new LatLng(33,16), "3"));
@@ -98,6 +118,8 @@ public class Favorites_View_Activity extends Activity {
 		db.addFavorite(new Restaurant("abcdefg", "8", "Canyon Vista", "3500 Gillman Dr.", new LatLng(63,66), "4"));
 		db.addFavorite(new Restaurant("abcdefg", "9", "Pines", "3500 Gillman Dr.", new LatLng(65,65), "5"));
 		db.addFavorite(new Restaurant("abcdefg", "10", "D'lush", "3500 Gillman Dr.", new LatLng(66,63), "3"));
+		db.addFavorite(new Restaurant("abcdefg", "13", "Subway", "3600 Gillman Dr.", new LatLng(65,65), "4"));
+
 		
 		ArrayList<Restaurant> myFavorites = db.getAllFavorites();
 		
@@ -114,4 +136,39 @@ public class Favorites_View_Activity extends Activity {
 		
 	}
 	
+	// method to remove list item
+    protected void removeItemFromList(int position) {
+        final int deletePosition = position;
+		ArrayList<Restaurant> tempFavorites = db.getAllFavorites();
+        String temp = (tempFavorites.get(position)).business_id;
+        final int restid = Integer.valueOf(temp);
+  
+
+
+ 
+        AlertDialog.Builder alert = new AlertDialog.Builder(
+                Favorites_View_Activity.this);
+    
+        alert.setTitle("Delete");
+        alert.setMessage("Do you want delete this item?");
+        alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                    
+                    // main code on after clicking yes
+                    favoriteList.remove(deletePosition);
+                    simpleAdpt.notifyDataSetChanged();
+                    simpleAdpt.notifyDataSetInvalidated();
+                    db.deleteFavorite(db.getFavorite(restid));
+      
+            }
+        });
+        alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+      
+        alert.show();
+      
+    }
 }
