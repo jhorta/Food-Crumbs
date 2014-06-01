@@ -12,6 +12,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
@@ -64,7 +65,22 @@ public class Favorites_View_Activity extends Activity {
                 return true;
             }
         });
-		
+        
+        faveList.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				ArrayList<Restaurant> myFavorites = db.getAllFavorites();
+				Restaurant rst = myFavorites.get(position);
+				String name = rst.name;
+				Intent i = new Intent(getApplicationContext(), Map_View_Activity.class);
+				i.putExtra("Source", Globals.SOURCE_FAVORITES);
+				i.putExtra("Favorite Filter", name);
+				startActivity(i);
+				finish();
+			}
+        });
 	}
 
 	@Override
@@ -108,18 +124,17 @@ public class Favorites_View_Activity extends Activity {
 	
 	private void makeList()
 	{
-		db.addFavorite(new Restaurant("abcdefg", "1", "Burger King", "3500 Gillman Dr.", new LatLng(33,16), "3"));
-		db.addFavorite(new Restaurant("abcdefg", "2", "Santorini's", "3500 Gillman Dr.", new LatLng(15,16), "4"));
-		db.addFavorite(new Restaurant("abcdefg", "3", "Subway", "3500 Gillman Dr.", new LatLng(66,66), "4"));
-		db.addFavorite(new Restaurant("abcdefg", "4", "Shogun", "3500 Gillman Dr.", new LatLng(65,66), "5"));
-		db.addFavorite(new Restaurant("abcdefg", "5", "Panda Express", "3500 Gillman Dr.", new LatLng(66,67), "3"));
-		db.addFavorite(new Restaurant("abcdefg", "6", "Rubio's", "3500 Gillman Dr.", new LatLng(64,66), "4"));
-		db.addFavorite(new Restaurant("abcdefg", "7", "Foodworx", "3500 Gillman Dr.", new LatLng(66,65), "3"));
-		db.addFavorite(new Restaurant("abcdefg", "8", "Canyon Vista", "3500 Gillman Dr.", new LatLng(63,66), "4"));
-		db.addFavorite(new Restaurant("abcdefg", "9", "Pines", "3500 Gillman Dr.", new LatLng(65,65), "5"));
-		db.addFavorite(new Restaurant("abcdefg", "10", "D'lush", "3500 Gillman Dr.", new LatLng(66,63), "3"));
-		db.addFavorite(new Restaurant("abcdefg", "13", "Subway", "3600 Gillman Dr.", new LatLng(65,65), "4"));
-
+//		db.addFavorite(new Restaurant("abcdefg", "1", "Burger King", "3500 Gillman Dr.", new LatLng(33,16), "3"));
+//		db.addFavorite(new Restaurant("abcdefg", "2", "Santorini's", "3500 Gillman Dr.", new LatLng(15,16), "4"));
+//		db.addFavorite(new Restaurant("abcdefg", "3", "Subway", "3500 Gillman Dr.", new LatLng(66,66), "4"));
+//		db.addFavorite(new Restaurant("abcdefg", "4", "Shogun", "3500 Gillman Dr.", new LatLng(65,66), "5"));
+//		db.addFavorite(new Restaurant("abcdefg", "5", "Panda Express", "3500 Gillman Dr.", new LatLng(66,67), "3"));
+//		db.addFavorite(new Restaurant("abcdefg", "6", "Rubio's", "3500 Gillman Dr.", new LatLng(64,66), "4"));
+//		db.addFavorite(new Restaurant("abcdefg", "7", "Foodworx", "3500 Gillman Dr.", new LatLng(66,65), "3"));
+//		db.addFavorite(new Restaurant("abcdefg", "8", "Canyon Vista", "3500 Gillman Dr.", new LatLng(63,66), "4"));
+//		db.addFavorite(new Restaurant("abcdefg", "9", "Pines", "3500 Gillman Dr.", new LatLng(65,65), "5"));
+//		db.addFavorite(new Restaurant("abcdefg", "10", "D'lush", "3500 Gillman Dr.", new LatLng(66,63), "3"));
+//		db.addFavorite(new Restaurant("abcdefg", "13", "Subway", "3600 Gillman Dr.", new LatLng(65,65), "4"))
 		
 		ArrayList<Restaurant> myFavorites = db.getAllFavorites();
 		
@@ -141,7 +156,7 @@ public class Favorites_View_Activity extends Activity {
         final int deletePosition = position;
 		ArrayList<Restaurant> tempFavorites = db.getAllFavorites();
         String temp = (tempFavorites.get(position)).business_id;
-        final int restid = Integer.valueOf(temp);
+        final String restid = temp;
   
 
 

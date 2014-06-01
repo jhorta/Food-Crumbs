@@ -320,7 +320,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchLocation = (SearchView) MenuItemCompat.getActionView(searchItem);
-		searchLocation.setQueryHint("Current Location");
+		searchLocation.setQuery("Current Location", false);
 		searchLocation.setIconifiedByDefault(true);
 		searchLocation.setOnQueryTextListener(this);
 		
@@ -465,6 +465,8 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 //			}
 			if (isRoute) {
 				show_directions();
+			} else {
+				show_location();
 			}
 			
 			getRestaurants();
@@ -484,6 +486,15 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		
 		
 //		Log.i("Hehehe", json_string);
+	}
+	
+	private void show_location() {
+		gMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(directions_array.get(0).getStartLocation().latitude,
+                		directions_array.get(0).getStartLocation().longitude), 16));
+        startMarker = gMaps.addMarker(new MarkerOptions()
+		.title(totalDirection.getStart_address())
+		.position(directions_array.get(0).getStartLocation()));
 	}
 	
 	private void show_directions() {
@@ -570,8 +581,15 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 				myLocation = currLoc;
 				locationServices.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 			} else {
-				myLocation.setLatitude(0); 
-				myLocation.setLongitude(0);
+				AlertDialog.Builder builder = new AlertDialog.Builder(this);
+				builder.setTitle("Buggy Location Services");
+				builder.setMessage("Your phone's location services are buggy. Might want to reboot!");
+				builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+	                public void onClick(DialogInterface dialog, int id) {
+	                    finish();
+	                }
+	            });
+				builder.show();
 			}
 		}
 	}
@@ -650,12 +668,7 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	@Override
 	public boolean onQueryTextSubmit(String text) {
 		isRoute = false;
-		if (text.equals("") || text == null) {
-			findLocation("Current Location", null);
-			
-		} else {
-			findLocation(text, null);
-		}
+		findLocation(text, null);
 		searchLocation.clearFocus();
 		return false;
 	}

@@ -60,7 +60,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FAVORITES_TABLE = "CREATE TABLE " + TABLE_FAVORITES + "("
-                + KEY_ID + " INTEGER PRIMARY KEY," + KEY_REFERENCE_ID + " TEXT," + KEY_NAME + " TEXT,"
+                + KEY_ID + " TEXT," + KEY_REFERENCE_ID + " TEXT," + KEY_NAME + " TEXT,"
                 + KEY_ADDRESS + " TEXT," + KEY_RATING + " TEXT," + KEY_LATITUDE + " TEXT," + KEY_LONGITUDE + " TEXT" + ")";
         db.execSQL(CREATE_FAVORITES_TABLE);
         
@@ -195,12 +195,12 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	 * @param id
 	 * @return Restaurant
 	 */
-	public Restaurant getFavorite(int id) {
+	public Restaurant getFavorite(String id) {
 	    SQLiteDatabase db = this.getReadableDatabase();
 	
 	    Cursor cursor = db.query(TABLE_FAVORITES, new String[] { KEY_ID, KEY_REFERENCE_ID,
 	            KEY_NAME, KEY_ADDRESS, KEY_RATING, KEY_LATITUDE, KEY_LONGITUDE}, KEY_ID + "=?",
-	            new String[] { String.valueOf(id) }, null, null, null, null);
+	            new String[] { id }, null, null, null, null);
 	    if (cursor != null)
 	        cursor.moveToFirst();
 	
@@ -293,7 +293,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	    
 	    // updating row
 	    return db.update(TABLE_FAVORITES, values, KEY_ID + " = ?",
-	            new String[] { String.valueOf(favorite.business_id) });
+	            new String[] { favorite.business_id });
 	}
 	
 	/**
@@ -303,7 +303,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	public void deleteFavorite(Restaurant favorite) {
 	    SQLiteDatabase db = this.getWritableDatabase();
 	    db.delete(TABLE_FAVORITES, KEY_ID + " = ?",
-	            new String[] { String.valueOf(favorite.business_id) });
+	            new String[] { favorite.business_id });
 	    db.close();
 	}
 	

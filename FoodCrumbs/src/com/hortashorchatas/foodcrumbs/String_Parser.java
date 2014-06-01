@@ -242,13 +242,13 @@ public class String_Parser {
 		HashMap<String, String> details = new HashMap<String, String>();
 		JSONObject result = server_response.getJSONObject("result");
 		
-		if (result.getString("formatted_address") != null) {
+		if (result.has("formatted_address")) {
 			details.put("address", result.getString("formatted_address"));
 		} else {
 			details.put("address", "");
 		}
 		
-		if (result.getString("international_phone_number") != null) {
+		if (result.has("international_phone_number")) {
 			details.put("phone number", result.getString("international_phone_number"));
 		} else {
 			details.put("phone number", "");
@@ -263,41 +263,131 @@ public class String_Parser {
 		details.put("latitude", String.valueOf(latitude));
 		details.put("longitude", String.valueOf(longitude));
 				
-		if (result.getString("id") != null) {
+		if (result.has("id")) {
 			details.put("id", result.getString("id"));
 		} else {
 			details.put("id", "");
 		}
 		
-		if (result.getString("name") != null) {
+		if (result.has("name")) {
 			details.put("name", result.getString("name"));
 		} else {
 			details.put("name", "");
 		}
 		
-		if (result.getString("rating") != null) {
-			details.put("rating", result.getString("rating"));
+		if (result.has("rating")) {
+			details.put("rating", String.valueOf(result.getDouble("rating")));
 		} else {
 			details.put("rating", "");
 		}
 		
-		if (result.getString("website") != null) {
+		if (result.has("website")) {
 			details.put("website", result.getString("website"));
 		} else {
 			details.put("website", "");
 		}
 		
-		JSONArray photos = result.getJSONArray("photos");
-		JSONObject photos_sub = photos.getJSONObject(0);
-		
-		if (photos_sub != null) {
-			details.put("photo", photos_sub.getString("photo_reference"));
-			details.put("height", photos_sub.getString("height"));
-			details.put("width", photos_sub.getString("width"));
+		if (result.has("photos")) {
+			JSONArray photos = result.getJSONArray("photos");
+			JSONObject photos_sub = photos.getJSONObject(0);
+			
+			if (photos_sub != null) {
+				details.put("photo", photos_sub.getString("photo_reference"));
+				details.put("height", String.valueOf(photos_sub.getDouble("height")));
+				details.put("width", String.valueOf(photos_sub.getDouble("width")));
+			}
+		} else {
+			details.put("photo", "");
+			details.put("height", "0");
+			details.put("width", "0");
 		}
 		
 		return details;
 	}
+	
+	public String[] getRestaurantHours() {
+		String[] hours = new String[7];
+		
+		for (int i = 0; i < hours.length; ++i) {
+			String day = getDayOfWeek(i);
+			hours[i] = day + " Closed.";
+		}
+		
+		try {
+			JSONObject result = server_response.getJSONObject("result");
+			JSONObject opening_hours = result.getJSONObject("opening_hours");
+			JSONArray opening_hour_periods = opening_hours.getJSONArray("periods");
+			
+			for (int i = 0; i < opening_hour_periods.length(); ++i) {
+				JSONObject period = opening_hour_periods.getJSONObject(i);
+				JSONObject open = period.getJSONObject("open");
+				JSONObject close = period.getJSONObject("close");
+				
+				int day = open.getInt("day");
+				
+				String open_time = open.getString("time");
+				String open_time_hours = open_time.substring(0, 2);
+				String open_time_minutes = open_time.substring(2, 4);
+				int open_time_int_hrs = Integer.parseInt(open_time_hours);
+				
+				String close_time = close.getString("time");
+				String close_time_hours = close_time.substring(0, 2);
+				String close_time_minutes = close_time.substring(2, 4);
+				int close_time_int_hrs = Integer.parseInt(close_time_hours);
+				
+				hours[day] = getDayOfWeek(day) + " " + getTimeString(open_time_int_hrs, open_time_hours, open_time_minutes)
+						+ "-" + getTimeString(close_time_int_hrs, close_time_hours, close_time_minutes);
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return hours;
+	}
+	
+	private String getTimeString(int hours, String hour_string, String minute_string) {
+		if (hours > 12 && hours < 24) {
+			hours = hours - 12;
+			hour_string = String.valueOf(hours);
+			return hour_string + ":" + minute_string +"pm";
+		} else if (hours == 24) {
+			return "12"+":"+minute_string+"am";
+		} else if (hours == 12) {
+			return "12"+":"+minute_string+"pm";
+		} else {
+			return hour_string+":"+minute_string+"am";
+		}
+	}
+	
+	private String getDayOfWeek(int i) {
+		String day = "";
+		switch (i) {
+			case 0:
+				day = "Sun";
+				break;
+			case 1:
+				day = "Mon";
+				break;
+			case 2:
+				day = "Tue";
+				break;
+			case 3:
+				day = "Wed";
+				break;
+			case 4:
+				day = "Thu";
+				break;
+			case 5:
+				day = "Fri";
+				break;
+			case 6:
+				day = "Sat";
+				break;
+		}
+		return day;
+	}
+	
     private ArrayList<LatLng> decodePoly(String encoded) {
         ArrayList<LatLng> poly = new ArrayList<LatLng>();
         int index = 0, len = encoded.length();

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -58,6 +59,8 @@ public class RestaurantActivity extends Activity {
 	
 	private HashMap<String, String> details;
 	
+	private ArrayAdapter<String> adapter_state;
+	
 	private boolean isFavorite;
 	
 	private String restaurant_id_reference;
@@ -65,7 +68,10 @@ public class RestaurantActivity extends Activity {
 	private String restaurant_address_reference;
 	private double restaurant_latitude_reference;
 	private double restaurant_longitude_reference;
+	
+	private int day;
 	private String restaurant_rating_reference;
+	private String restaurant_reference;
 	
 	private DatabaseHandler db;
 
@@ -86,7 +92,7 @@ public class RestaurantActivity extends Activity {
         details = new HashMap<String, String>();
 		
 		Intent i = getIntent();
-		final String restaurant_reference = i.getStringExtra("restaurant_reference_id");
+		restaurant_reference = i.getStringExtra("restaurant_reference_id");
 		
 		db = new DatabaseHandler(this);
 		isFavorite = db.getIsFavorite(restaurant_reference);
@@ -125,9 +131,9 @@ public class RestaurantActivity extends Activity {
 		restaurant_hours[6] = "Sat 11am-12am";
 		
 		Calendar calendar = Calendar.getInstance();
-		int day = calendar.get(Calendar.DAY_OF_WEEK); 
+		day = calendar.get(Calendar.DAY_OF_WEEK); 
 		
-		ArrayAdapter<String> adapter_state = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, restaurant_hours);
+		adapter_state = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, restaurant_hours);
 		adapter_state.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		restaurant_hours_spinner.setAdapter(adapter_state);
 		restaurant_hours_spinner.setSelection(day-1);
@@ -206,11 +212,20 @@ public class RestaurantActivity extends Activity {
 		try {
 			details = json_reponse_parser.getDetails();
 			
+			restaurant_hours = json_reponse_parser.getRestaurantHours();
+			
+			adapter_state = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, restaurant_hours);
+			adapter_state.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+			restaurant_hours_spinner.setAdapter(adapter_state);
+			restaurant_hours_spinner.setSelection(day-1);
+			
 			if (!details.get("photo").equals("")) {
 				ImageDownloadTask[] imageDownloadTask = new ImageDownloadTask[1];
-				String url = new String("https://maps.googleapis.com/maps/api/place/photo?photoreference="+details.get("photo")+"&sensor=false&maxheight="+details.get("height")+"&maxwidth="+details.get("width")+"&key="+Globals.GOOGLE_PLACES_API_KEY);
-				imageDownloadTask[0] = new ImageDownloadTask();
-				imageDownloadTask[0].execute(url);
+				if (!details.get("photo").equals("")) {
+					String url = new String("https://maps.googleapis.com/maps/api/place/photo?photoreference="+details.get("photo")+"&sensor=false&maxheight="+details.get("height")+"&maxwidth="+details.get("width")+"&key="+Globals.GOOGLE_PLACES_API_KEY);
+					imageDownloadTask[0] = new ImageDownloadTask();
+					imageDownloadTask[0].execute(url);
+				}
 			}
 			
 			restaurant_id_reference = details.get("id");
@@ -223,16 +238,26 @@ public class RestaurantActivity extends Activity {
 			restaurant_name.setText(restaurant_name_reference);
 			restaurant_address.setText(restaurant_address_reference);
 			restaurant_phone_number.setText(details.get("phone number"));
-			restaurant_rating.setText(details.get("rating"));
-			restaurant_website.setText(Html.fromHtml(
-		            "<a href=\""+details.get("website")+"\">http://subway.com</a> "));
+			if (details.get("rating").equals("")) {
+				restaurant_rating.setText("No Rating.");
+			} else {
+				restaurant_rating.setText(details.get("rating")+"/"+"5");
+			}
+			if (details.get("website").equals("")) {
+				restaurant_website.setText("No Website.");
+			} else {
+				restaurant_website.setText(Html.fromHtml(
+			            "<a href=\""+details.get("website")+"\">"+"Website"+"</a> "));
+			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	private void setImage(Bitmap result) {
-		restaurant_image.setImageBitmap(result);
+		if (result != null) {
+			restaurant_image.setImageBitmap(result);
+		}
 	}
 	
     private Bitmap downloadImage(String strUrl) throws IOException{

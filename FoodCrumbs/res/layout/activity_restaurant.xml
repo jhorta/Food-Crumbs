@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
+        android:gravity="center"
         android:text="@string/str_restaurant_name_placeholder"
 		android:textSize="36sp"/>
 
@@ -45,7 +46,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/restaurant_address"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:textSize="12sp" 
+        android:maxWidth="150dp"/>
 
     <ImageView
         android:id="@+id/restaurant_favorite"
