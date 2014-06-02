@@ -388,6 +388,34 @@ public class String_Parser {
 		return day;
 	}
 	
+	public String getReview() throws JSONException {
+		String review = "";
+		JSONObject result = server_response.getJSONObject("result");
+		
+		if (result.has("reviews")) {
+			JSONArray reviews = result.getJSONArray("reviews");
+			JSONObject review_to_use = null;
+			int rating_to_use = 0;
+			for (int i = 0; i < reviews.length(); ++i) {
+				JSONObject temp = reviews.getJSONObject(i);
+				
+				JSONArray aspects = temp.getJSONArray("aspects");
+				JSONObject aspects_sub = aspects.getJSONObject(0);
+				
+				int rating = aspects_sub.getInt("rating");
+				
+				if (rating > rating_to_use) {
+					review_to_use = temp;
+					rating_to_use = rating;
+				}
+			}
+			
+			review = review_to_use.getString("text");
+		}
+
+		return review;
+	}
+	
     private ArrayList<LatLng> decodePoly(String encoded) {
         ArrayList<LatLng> poly = new ArrayList<LatLng>();
         int index = 0, len = encoded.length();

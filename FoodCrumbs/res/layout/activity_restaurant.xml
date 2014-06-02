@@ -17,7 +17,7 @@
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:text="@string/str_restaurant_name_placeholder"
-		android:textSize="36sp"/>
+		android:textSize="28sp"/>
 
     
     <ImageView
@@ -36,7 +36,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/restaurant_name"
         android:layout_marginTop="5dp"
-        android:maxWidth="150dp"
+        android:maxWidth="175dp"
         android:text="@string/str_restaruant_address_placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium"  />
 
@@ -105,16 +105,28 @@
         android:id="@+id/best_review"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:text="@string/str_restaurant_best_review_placeholder" />
-
-    <TextView
-        android:id="@+id/worst_review"
+        android:layout_below="@+id/dishes_button"
+        android:layout_marginTop="10dp"
+        android:text="@string/str_restaurant_best_review_placeholder" 
+        android:textSize="24sp" />
+    
+    <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:text="@string/str_restaurant_best_review_placeholder" />
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/best_review"        
+        android:layout_marginTop="10dp"> 
+           
+	    <TextView
+	        android:id="@+id/best_review_text"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/str_restaurant_best_review_placeholder"
+	        android:textSize="14sp"
+		/>
+    </ScrollView>    
+    
+
 
 </RelativeLayout>

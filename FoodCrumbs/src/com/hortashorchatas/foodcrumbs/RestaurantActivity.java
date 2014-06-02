@@ -54,8 +54,9 @@ public class RestaurantActivity extends Activity {
 	private TextView restaurant_phone_number;
 	private TextView restaurant_rating;
 	private TextView restaurant_website;
+	private TextView review_text;
 	
-	private String_Parser json_reponse_parser;
+	private String_Parser json_response_parser;
 	
 	private HashMap<String, String> details;
 	
@@ -87,7 +88,7 @@ public class RestaurantActivity extends Activity {
 		restaurant_latitude_reference = 0;
 		restaurant_name_reference = "";
 		
-        json_reponse_parser = new String_Parser();
+		json_response_parser = new String_Parser();
         
         details = new HashMap<String, String>();
 		
@@ -199,6 +200,9 @@ public class RestaurantActivity extends Activity {
 				}
 			}
 		});
+		
+		review_text = (TextView) findViewById(R.id.best_review_text);
+		review_text.setTypeface(null, Typeface.BOLD);
 	}
 
 	@Override
@@ -210,9 +214,16 @@ public class RestaurantActivity extends Activity {
 	
 	private void getDetails() {
 		try {
-			details = json_reponse_parser.getDetails();
+			details = json_response_parser.getDetails();
 			
-			restaurant_hours = json_reponse_parser.getRestaurantHours();
+			restaurant_hours = json_response_parser.getRestaurantHours();
+			
+			String review = json_response_parser.getReview();
+			if (review.equals("")) {
+				review_text.setText("No reviews for this retaurant.");
+			} else {
+				review_text.setText(review);
+			}
 			
 			adapter_state = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, restaurant_hours);
 			adapter_state.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -326,7 +337,7 @@ public class RestaurantActivity extends Activity {
 	        if (dialog.isShowing()) {
 	            dialog.dismiss();
 	        }
-			json_reponse_parser.setNewQueryReponse(result);
+	        json_response_parser.setNewQueryReponse(result);
 			
 			getDetails();
 			Log.i("Ohs yarhh", result);
