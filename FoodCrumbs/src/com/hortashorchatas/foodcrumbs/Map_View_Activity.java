@@ -371,8 +371,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
             		search_type = data.getExtras().getString("Search Query");
         		}
         		radius = Double.parseDouble(data.getExtras().getString("Radius"));
-        		time_in = Double.parseDouble(data.getExtras().getString("Time"));
-        		distance_in = Double.parseDouble(data.getExtras().getString("Distance"));
         	}
         }
     }
@@ -452,6 +450,13 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 			totalDirection = json_reponse_parser.getTotalDirections();
 			direction_steps_array = json_reponse_parser.getDirectionSteps();
 			
+			if (json_reponse_parser.hasGeoStop()) {
+				zoomToLocation(json_reponse_parser.getGeoStop());
+			} else {
+				zoomToLocation(new LatLng(directions_array.get(0).getStartLocation().latitude,
+                		directions_array.get(0).getStartLocation().longitude));
+			}
+			
 			for (int i = 0; i < direction_steps_array.size(); ++i) {
 				DirectionSteps d_step = direction_steps_array.get(i);
 				Log.i("Step distance", d_step.getDistance());
@@ -488,6 +493,10 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 //		Log.i("Hehehe", json_string);
 	}
 	
+	private void zoomToLocation(LatLng coordinates) {
+        gMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(coordinates, 16));
+	}
+	
 	private void show_location() {
 		gMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(directions_array.get(0).getStartLocation().latitude,
@@ -498,10 +507,6 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 	}
 	
 	private void show_directions() {
-        gMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(directions_array.get(0).getStartLocation().latitude,
-                		directions_array.get(0).getStartLocation().longitude), 16));
-        
         startMarker = gMaps.addMarker(new MarkerOptions()
         						.title(totalDirection.getStart_address())
         						.position(directions_array.get(0).getStartLocation()));
@@ -571,16 +576,28 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
 		boolean isGPSEnabled = locationServices.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		
 		if (isGPSEnabled) {
-			Location currLoc = locationServices.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-			
-			if (currLoc == null) {
-				currLoc = locationServices.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			}
-			
-			if (currLoc != null) {
-				myLocation = currLoc;
-				locationServices.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-			} else {
+			try {
+				Location currLoc = locationServices.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				
+				if (currLoc == null) {
+					currLoc = locationServices.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+				}
+				
+				if (currLoc != null) {
+					myLocation = currLoc;
+					locationServices.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+				} else {
+					AlertDialog.Builder builder = new AlertDialog.Builder(this);
+					builder.setTitle("Buggy Location Services");
+					builder.setMessage("Your phone's location services are buggy. Might want to reboot!");
+					builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+		                public void onClick(DialogInterface dialog, int id) {
+		                    finish();
+		                }
+		            });
+					builder.show();
+				}
+			}  catch (Exception e) {
 				AlertDialog.Builder builder = new AlertDialog.Builder(this);
 				builder.setTitle("Buggy Location Services");
 				builder.setMessage("Your phone's location services are buggy. Might want to reboot!");

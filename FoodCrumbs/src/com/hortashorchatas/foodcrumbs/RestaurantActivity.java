@@ -16,6 +16,7 @@ import org.json.JSONException;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
@@ -95,8 +96,9 @@ public class RestaurantActivity extends Activity {
 		Intent i = getIntent();
 		restaurant_reference = i.getStringExtra("restaurant_reference_id");
 		
+		Log.i("RefID", restaurant_reference);
+		
 		db = new DatabaseHandler(this);
-		isFavorite = db.getIsFavorite(restaurant_reference);
 		
 		try {
 			URL url = new URL(new String("http://192.241.180.205:9292/restaurantInfo?reference=" + restaurant_reference));
@@ -114,22 +116,45 @@ public class RestaurantActivity extends Activity {
 		restaurant_image.getLayoutParams().width = 160;
 		
 		restaurant_name = (TextView) findViewById(R.id.restaurant_name);
-		restaurant_name.setText("Subway");
+		restaurant_name.setText("Restaurant Name Placeholder");
 		restaurant_name.setTypeface(null, Typeface.BOLD);
 		
 		restaurant_address = (TextView) findViewById(R.id.restaurant_address);
-		restaurant_address.setText("221B Baker St, London NW1 6XE, United Kingdom");
+		restaurant_address.setText("Restaurant Address, Placeholder");
 		restaurant_address.setTypeface(null, Typeface.BOLD);
+		restaurant_address.setTextColor(Color.BLUE);
+		restaurant_address.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final AlertDialog.Builder dialog = new AlertDialog.Builder(RestaurantActivity.this);
+				dialog.setTitle("Go to Google Map");
+				dialog.setMessage("Would you like to find this address on your Google Map Application?");
+				dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("geo:0,0?q="+restaurant_address.getText().toString()));
+						startActivity(intent);
+					}
+				});
+				dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				dialog.show();
+			}
+		});
 		
 		restaurant_hours_spinner = (Spinner) findViewById(R.id.restaurant_hours);
 		
-		restaurant_hours[0] = "Sun 11am-12am";
-		restaurant_hours[1] = "Mon 11am-12am";
-		restaurant_hours[2] = "Tue 11am-12am";
-		restaurant_hours[3] = "Wed 11am-12am";
-		restaurant_hours[4] = "Thu 11am-12am";
-		restaurant_hours[5] = "Fri 11am-12am";
-		restaurant_hours[6] = "Sat 11am-12am";
+		restaurant_hours[0] = "Sun 9am-5pm";
+		restaurant_hours[1] = "Mon 9am-5pm";
+		restaurant_hours[2] = "Tue 9am-5pm";
+		restaurant_hours[3] = "Wed 9am-5pm";
+		restaurant_hours[4] = "Thu 9am-5pm";
+		restaurant_hours[5] = "Fri 9am-5pm";
+		restaurant_hours[6] = "Sat 9am-5pm";
 		
 		Calendar calendar = Calendar.getInstance();
 		day = calendar.get(Calendar.DAY_OF_WEEK); 
@@ -140,7 +165,7 @@ public class RestaurantActivity extends Activity {
 		restaurant_hours_spinner.setSelection(day-1);
 		
 		restaurant_phone_number = (TextView) findViewById(R.id.restaurant_phone_number);
-		restaurant_phone_number.setText("+44 20 7224 3688");
+		restaurant_phone_number.setText("+PhoneNumberPlaceholder");
 		restaurant_phone_number.setTypeface(null, Typeface.BOLD);
 		restaurant_phone_number.setTextColor(Color.BLUE);
 		restaurant_phone_number.setOnClickListener(new OnClickListener() {
@@ -153,7 +178,8 @@ public class RestaurantActivity extends Activity {
 				dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// DO NOTHING FOR NOW
+						Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+restaurant_phone_number.getText().toString()));
+						startActivity(i);
 					}
 				});
 				dialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -167,19 +193,16 @@ public class RestaurantActivity extends Activity {
 		});
 		
 		restaurant_rating = (TextView) findViewById(R.id.restaurant_rating);
-		restaurant_rating.setText("3.5/5.0");
+		restaurant_rating.setText("Rating/5.0");
 		restaurant_rating.setTypeface(null, Typeface.BOLD);
 		
 		restaurant_website = (TextView) findViewById(R.id.restaurant_website);
 		restaurant_website.setText(Html.fromHtml(
-	            "<a href=\"http://subway.com\">http://subway.com</a> "));
+	            "<a href=\"about:blank\">Website Placeholder</a> "));
 		restaurant_website.setMovementMethod(LinkMovementMethod.getInstance());
 		restaurant_website.setTypeface(null, Typeface.BOLD);
 		
 		favorite_star = (ImageView) findViewById(R.id.restaurant_favorite);
-		if (isFavorite) {
-			favorite_star.setImageResource(R.drawable.ic_favorite);
-		}
 		
 		favorite_star.setOnClickListener(new OnClickListener() {
 
@@ -189,7 +212,7 @@ public class RestaurantActivity extends Activity {
 				if (isFavorite) {
 					isFavorite = false;
 					favorite_star.setImageResource(R.drawable.ic_not_favorite);
-					db.deleteFavorite(restaurant_reference);
+					db.deleteFavorite(restaurant_id_reference);
 				} else {
 					isFavorite = true;
 					favorite_star.setImageResource(R.drawable.ic_favorite);
@@ -259,6 +282,15 @@ public class RestaurantActivity extends Activity {
 			} else {
 				restaurant_website.setText(Html.fromHtml(
 			            "<a href=\""+details.get("website")+"\">"+"Website"+"</a> "));
+			}
+			
+			isFavorite = db.getIsFavorite(restaurant_id_reference);
+			
+			if (isFavorite) {
+				Log.i("RESTAURANT ACTIVITY", "IS FAVORITE");
+				favorite_star.setImageResource(R.drawable.ic_favorite);
+			} else {
+				Log.i("RESTAURANT ACTIVITY", "IS NOT FAVORITE");
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

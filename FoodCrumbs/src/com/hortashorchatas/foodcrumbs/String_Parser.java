@@ -237,7 +237,38 @@ public class String_Parser {
 		
 		return dirList;
 	}
+	
+	public boolean hasGeoStop() {
+		try {
+			JSONObject geostop = server_response.getJSONObject("geostop");
+			
+			if (!geostop.has("routes")) {
+				return false;
+			} else {
+				return true;
+			}
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
+	public LatLng getGeoStop() throws JSONException {
+		JSONObject geostop = server_response.getJSONObject("geostop");
+		
+		JSONArray routes = geostop.getJSONArray("routes");
+		JSONObject obj = routes.getJSONObject(0);
+		JSONArray legs = obj.getJSONArray("legs");
+		JSONObject obj2 = legs.getJSONObject(0);
+		JSONArray steps = obj2.getJSONArray("steps");
+		JSONObject temp = steps.getJSONObject(0);
+		JSONObject location = temp.getJSONObject("start_location");
+		
+		double lat = location.getDouble("lat");
+		double lng = location.getDouble("lng");
+		
+		return new LatLng(lat, lng);
+	}
+	
 	public HashMap<String, String> getDetails() throws JSONException {
 		HashMap<String, String> details = new HashMap<String, String>();
 		JSONObject result = server_response.getJSONObject("result");

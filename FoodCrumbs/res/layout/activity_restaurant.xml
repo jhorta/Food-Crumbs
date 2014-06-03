@@ -37,6 +37,7 @@
         android:layout_below="@+id/restaurant_name"
         android:layout_marginTop="5dp"
         android:maxWidth="175dp"
+        android:clickable="true"
         android:text="@string/str_restaruant_address_placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium"  />
 

@@ -219,10 +219,13 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	 * @param reference_id
 	 * @return
 	 */
-	public boolean getIsFavorite(String reference_id) {
+	public boolean getIsFavorite(String id) {
 	    SQLiteDatabase db = this.getReadableDatabase();
 	    
-	    Cursor cursor = db.rawQuery("SELECT "+KEY_NAME+" FROM "+TABLE_FAVORITES+" WHERE "+KEY_REFERENCE_ID+"='"+reference_id+"'", null);
+	    Cursor cursor = db.query(TABLE_FAVORITES, new String[] { KEY_ID, KEY_REFERENCE_ID,
+	            KEY_NAME, KEY_ADDRESS, KEY_RATING, KEY_LATITUDE, KEY_LONGITUDE}, KEY_ID + "=?",
+	            new String[] { id }, null, null, null, null);
+	    
 	    if (cursor != null && cursor.getCount() > 0) {
 	    	return true;
 	    } else {
@@ -311,9 +314,9 @@ public class DatabaseHandler extends SQLiteOpenHelper{
 	 * Deletes a single Favorite from the Database with a reference id.
 	 * @param reference_id
 	 */
-	public void deleteFavorite(String reference_id) {
+	public void deleteFavorite(String id) {
 	    SQLiteDatabase db = this.getWritableDatabase();
-	    db.delete(TABLE_FAVORITES, KEY_REFERENCE_ID+"="+reference_id, null);
+	    db.delete(TABLE_FAVORITES, KEY_ID + " = ?", new String[] { id });
 	}
 	
 	/**
