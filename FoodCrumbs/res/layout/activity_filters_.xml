@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/filter_bg"
     tools:context="com.hortashorchatas.foodcrumbs.Filters_Activity$PlaceholderFragment" >
 
     <TextView
@@ -24,6 +25,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/title"
         android:layout_marginTop="20dp"
+        android:textStyle="bold"
         android:text="@string/str_find_filters" />
 
     <EditText
@@ -44,6 +46,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/search_filter_label"
         android:layout_marginTop="15dp"
+        android:textStyle="bold"
         android:text="@string/str_radius_filters" />
 	
 	<Spinner

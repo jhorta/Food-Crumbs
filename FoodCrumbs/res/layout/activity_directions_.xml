@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/route_bg"
     tools:context="com.hortashorchatas.foodcrumbs.Directions_Activity$PlaceholderFragment" >
 
     <EditText
@@ -97,6 +98,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/radio_group"
+        android:layout_alignBaseline="@+id/edit_text_hours_or_miles"
+        android:textStyle="bold"
         android:text="" />
 
     <EditText

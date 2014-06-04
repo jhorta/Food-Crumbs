@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.hortashorchatas.foodcrumbs.Favorites_View_Activity"
+    android:background="@drawable/restaurant_page"
     tools:ignore="MergeRootFrame">
     
     <ListView

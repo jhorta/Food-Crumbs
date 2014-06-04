@@ -71,14 +71,35 @@ public class Favorites_View_Activity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				
 				ArrayList<Restaurant> myFavorites = db.getAllFavorites();
-				Restaurant rst = myFavorites.get(position);
-				String name = rst.name;
-				Intent i = new Intent(getApplicationContext(), Map_View_Activity.class);
-				i.putExtra("Source", Globals.SOURCE_FAVORITES);
-				i.putExtra("Favorite Filter", name);
-				startActivity(i);
-				finish();
+				final Restaurant rst = myFavorites.get(position);
+				
+				AlertDialog.Builder alert = new AlertDialog.Builder(
+		                Favorites_View_Activity.this);
+		    
+		        alert.setTitle(rst.name);
+		        alert.setMessage("Go to Map or Restaurant Info Page?");
+		        alert.setPositiveButton("Map", new DialogInterface.OnClickListener() {
+		            public void onClick(DialogInterface dialog, int which) {
+						String name = rst.name;
+						Intent i = new Intent(getApplicationContext(), Map_View_Activity.class);
+						i.putExtra("Source", Globals.SOURCE_FAVORITES);
+						i.putExtra("Favorite Filter", name);
+						startActivity(i);
+						finish();
+		            }
+		        });
+		        alert.setNegativeButton("Info", new DialogInterface.OnClickListener() {
+		            public void onClick(DialogInterface dialog, int which) {
+						Intent i = new Intent(getApplicationContext(), RestaurantActivity.class);
+						i.putExtra("restaurant_reference_id", rst.reference_id);
+						startActivity(i);
+						finish();
+		            }
+		        });
+		      
+		        alert.show();
 			}
         });
 	}

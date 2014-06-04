@@ -52,7 +52,10 @@
     <string name="str_restaurant_best_review_placeholder">Best Review</string>
     <string name="title_activity_filters_">Filters_Activity</string>
     <string name="str_filters">Filters</string>
-	<string name="str_find_filters">Find</string>
-	<string name="str_radius_filters">Radius:</string>
-	<string name="str_submit">Submit</string>
+    <string name="str_find_filters">Find</string>
+    <string name="str_radius_filters">Radius:</string>
+    <string name="str_submit">Submit</string>
+    <string name="title_activity_dishes_">Dishes_Activity</string>
+    <string name="str_add_dish">Add Dish</string>
+
 </resources>

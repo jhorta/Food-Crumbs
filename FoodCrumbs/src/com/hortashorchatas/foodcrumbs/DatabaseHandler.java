@@ -33,6 +33,7 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     // Favorites table name
     private static final String TABLE_FAVORITES = "favorites";
     private static final String TABLE_INFO = "info";
+    private static final String TABLE_DISHES = "dishes";
  
     // Favorites Table Columns keys
     private static final String KEY_ID = "id";
@@ -48,7 +49,13 @@ public class DatabaseHandler extends SQLiteOpenHelper{
     private static final String KEY_PROF_PIC_URL = "picture";
     private static final String KEY_PROF_NAME = "name";
     private static final String KEY_IS_FIRST_INSTALL = "first_install";
- 
+    
+    // Favorite Dishes Column keys
+    private static final String KEY_DISH_RESTAURANT_ID = "rest_id";
+    private static final String KEY_DISH_NAME = "name";
+    private static final String KEY_DISH_RATING = "rating";
+    private static final String KEY_DISH_PRICE = "price";
+    
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -67,6 +74,10 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         String CREATE_INFO_TABLE = "CREATE TABLE " + TABLE_INFO + "(" + KEY_IS_FIRST_INSTALL + " INTEGER,"
         		+ KEY_PROF_PIC_URL + " TEXT," + KEY_PROF_NAME + " TEXT" + ")";
         db.execSQL(CREATE_INFO_TABLE);
+        
+        String CREATE_DISH_TABLE = "CREATE TABLE " + TABLE_DISHES + "(" + KEY_DISH_RESTAURANT_ID + " TEXT,"
+        		+ KEY_DISH_NAME + " TEXT," + KEY_DISH_RATING + " TEXT," + KEY_DISH_PRICE + " TEXT" + ")";
+        db.execSQL(CREATE_DISH_TABLE);
     }
     
  // Upgrading database
@@ -76,10 +87,74 @@ public class DatabaseHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_FAVORITES);
         
         db.execSQL("DROP TABLE IF EXISTS" + TABLE_INFO);
+        
+        db.execSQL("DROP TABLE IF EXISTS" + TABLE_DISHES);
+
         // Create tables again
         onCreate(db);
     }
     
+    public void addDish(String restaurant_id, String name, String rating, String price) {
+    	SQLiteDatabase db = this.getWritableDatabase();
+    	
+    	ContentValues values = new ContentValues();
+    	values.put(KEY_DISH_RESTAURANT_ID, restaurant_id);
+    	values.put(KEY_DISH_NAME, name);
+    	values.put(KEY_DISH_RATING, rating);
+    	values.put(KEY_DISH_PRICE, price);
+    	
+    	db.insert(TABLE_DISHES, null, values);
+    	db.close();
+    }
+    
+	public boolean hasDishes(String restaurant_id) {
+	    SQLiteDatabase db = this.getReadableDatabase();
+	    
+	    Cursor cursor = db.query(TABLE_DISHES, new String[] { KEY_DISH_RESTAURANT_ID, KEY_DISH_NAME,
+	    		KEY_DISH_RATING, KEY_DISH_PRICE}, KEY_DISH_RESTAURANT_ID + "=?",
+	            new String[] { restaurant_id }, null, null, null, null);
+	    
+	    if (cursor != null && cursor.getCount() > 0) {
+	    	return true;
+	    } else {
+	    	return false;
+	    }
+	}
+	
+    public ArrayList<Dish> getDishes(String restaurant_id) {
+		ArrayList<Dish> dishes = new ArrayList<Dish>();
+	    // Select All Query
+	
+	    SQLiteDatabase db = this.getWritableDatabase();
+	    Cursor cursor = db.query(TABLE_DISHES, new String[] { KEY_DISH_RESTAURANT_ID, KEY_DISH_NAME,
+	    		KEY_DISH_RATING, KEY_DISH_PRICE}, KEY_DISH_RESTAURANT_ID + "=?",
+	            new String[] { restaurant_id }, null, null, null, null);
+
+	    // looping through all rows and adding to list
+	    if (cursor.moveToFirst()) {
+	        do {	        	
+	        	String business_id = cursor.getString(0);
+	        	String name = cursor.getString(1);
+	        	String rating = cursor.getString(2);
+	        	String price = cursor.getString(3);
+	        	
+	        	Dish dish = new Dish(business_id, name, rating, price);
+	
+	            // Adding favorite to list
+	        	dishes.add(dish);
+	        } while (cursor.moveToNext());
+	    }
+	
+	    // return favorite list
+	    return dishes;
+    }
+    
+    public void deleteDishes(String restaurant_id, String name, String rating, String price) {
+	    SQLiteDatabase db = this.getWritableDatabase();
+	    db.delete(TABLE_DISHES, KEY_DISH_RESTAURANT_ID + " = ? AND " 
+	    		+ KEY_DISH_NAME + " = ? AND " + KEY_DISH_RATING + " = ? AND " + KEY_DISH_PRICE + " = ?",
+	    		new String[] { restaurant_id, name, rating, price });
+    }
     /**
      * This function adds profile information such as the profile picture url and the user's name into
      * the User Info Table.

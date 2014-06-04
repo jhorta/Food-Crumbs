@@ -359,6 +359,8 @@ public class Map_View_Activity extends Activity implements SearchView.OnQueryTex
         		String end_location = data.getExtras().getString("End Location");
         		if (!data.getExtras().getString("Search Query").equals("")) {
             		search_type = data.getExtras().getString("Search Query");
+        		} else {
+        			search_type = "restaurant";
         		}
         		radius = Double.parseDouble(data.getExtras().getString("Radius"));
         		time_in = Double.parseDouble(data.getExtras().getString("Time"));

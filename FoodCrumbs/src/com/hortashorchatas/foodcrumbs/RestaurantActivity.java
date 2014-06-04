@@ -75,6 +75,8 @@ public class RestaurantActivity extends Activity {
 	private String restaurant_rating_reference;
 	private String restaurant_reference;
 	
+	private Button dishes_button;
+	
 	private DatabaseHandler db;
 
 	@Override
@@ -272,6 +274,7 @@ public class RestaurantActivity extends Activity {
 			restaurant_name.setText(restaurant_name_reference);
 			restaurant_address.setText(restaurant_address_reference);
 			restaurant_phone_number.setText(details.get("phone number"));
+			
 			if (details.get("rating").equals("")) {
 				restaurant_rating.setText("No Rating.");
 			} else {
@@ -292,6 +295,18 @@ public class RestaurantActivity extends Activity {
 			} else {
 				Log.i("RESTAURANT ACTIVITY", "IS NOT FAVORITE");
 			}
+			
+			dishes_button = (Button) findViewById(R.id.dishes_button);
+			dishes_button.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					Intent i = new Intent(getApplicationContext(), Dishes_Activity.class);
+					i.putExtra("business_id", restaurant_id_reference);
+					startActivity(i);
+				}
+				
+			});
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
