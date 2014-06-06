@@ -13,13 +13,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-/**
+/** 
  * 
  */
 
 /**
  * @author cs110xas
- *
+ * 
+ * The initial version of this class was based on this tutorial: 
+ * http://www.androidhive.info/2011/11/android-sqlite-database-tutorial/
+ * It has since been modified extensively.
  */
 public class DatabaseHandler extends SQLiteOpenHelper{
 
