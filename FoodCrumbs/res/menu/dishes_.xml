@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.hortashorchatas.foodcrumbs.Dishes_Activity" >
+
+    <item android:id="@+id/action_add_dish"
+        android:title="@string/str_add_dish" 
+        android:showAsAction="ifRoom" />
+
+</menu>

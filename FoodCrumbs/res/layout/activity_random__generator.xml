@@ -1,7 +1,46 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.hortashorchatas.foodcrumbs.Random_Generator_Activity"
-    tools:ignore="MergeRootFrame" />
+    android:background="@drawable/random_generator_bg"
+    tools:context="com.hortashorchatas.foodcrumbs.Launch_Screen_Activity"
+    tools:ignore="MergeRootFrame" >
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:fontFamily="sans-serif"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:text="@string/str_welcome_to_random_generator" />
+
+    <TextView
+        android:id="@+id/random_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:fontFamily="sans-serif"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:text="@string/str_ready" />
+
+    <Button
+        android:id="@+id/spin_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="50dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/green_button"
+        android:minWidth="60dp"
+        android:fontFamily="sans-serif"
+        android:textSize="12sp"
+        android:text="@string/str_spin" />
+
+</RelativeLayout>
